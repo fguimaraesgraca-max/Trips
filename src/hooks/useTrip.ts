@@ -1,15 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Trip, Activity, Day } from '../types'
-import { sampleTrip } from '../data/sampleTrip'
+import { Trip, Activity, Day, PendingItem, PendingStatus } from '../types'
+import { defaultTrips } from '../data/defaultTrips'
 
-const KEY = 'viaticum-v1'
+const KEY = 'viaticum-v2'
 
-function load(): Trip {
+interface AppState {
+  trips: Trip[]
+  activeTripId: string
+}
+
+function loadState(): AppState {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return JSON.parse(raw) as Trip
+    if (raw) return JSON.parse(raw) as AppState
   } catch {}
-  return sampleTrip
+  return { trips: defaultTrips, activeTripId: defaultTrips[0].id }
 }
 
 function nanoid(): string {
@@ -17,16 +22,29 @@ function nanoid(): string {
 }
 
 export function useTrip() {
-  const [trip, setTrip] = useState<Trip>(load)
+  const [state, setState] = useState<AppState>(loadState)
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(trip)) } catch {}
-  }, [trip])
+    try { localStorage.setItem(KEY, JSON.stringify(state)) } catch {}
+  }, [state])
+
+  const trip = state.trips.find(t => t.id === state.activeTripId) ?? state.trips[0]
+
+  const setActiveTrip = useCallback((id: string) => {
+    setState(s => ({ ...s, activeTripId: id }))
+  }, [])
+
+  const updateActive = useCallback((updater: (t: Trip) => Trip) => {
+    setState(s => ({
+      ...s,
+      trips: s.trips.map(t => t.id === s.activeTripId ? updater(t) : t),
+    }))
+  }, [])
 
   const toggleActivity = useCallback((dayId: string, actId: string) => {
-    setTrip(p => ({
-      ...p,
-      days: p.days.map(d =>
+    updateActive(t => ({
+      ...t,
+      days: t.days.map(d =>
         d.id !== dayId ? d : {
           ...d,
           activities: d.activities.map(a =>
@@ -35,12 +53,12 @@ export function useTrip() {
         }
       ),
     }))
-  }, [])
+  }, [updateActive])
 
   const saveActivity = useCallback((dayId: string, act: Activity) => {
-    setTrip(p => ({
-      ...p,
-      days: p.days.map(d =>
+    updateActive(t => ({
+      ...t,
+      days: t.days.map(d =>
         d.id !== dayId ? d : {
           ...d,
           activities: d.activities.some(a => a.id === act.id)
@@ -49,35 +67,35 @@ export function useTrip() {
         }
       ),
     }))
-  }, [])
+  }, [updateActive])
 
   const deleteActivity = useCallback((dayId: string, actId: string) => {
-    setTrip(p => ({
-      ...p,
-      days: p.days.map(d =>
+    updateActive(t => ({
+      ...t,
+      days: t.days.map(d =>
         d.id !== dayId ? d : {
           ...d,
           activities: d.activities.filter(a => a.id !== actId),
         }
       ),
     }))
-  }, [])
+  }, [updateActive])
 
   const addDay = useCallback((date: string, city: string, country: string) => {
     const newDay: Day = { id: nanoid(), date, city, country, activities: [] }
-    setTrip(p => ({
-      ...p,
-      days: [...p.days, newDay].sort((a, b) => a.date.localeCompare(b.date)),
+    updateActive(t => ({
+      ...t,
+      days: [...t.days, newDay].sort((a, b) => a.date.localeCompare(b.date)),
     }))
-  }, [])
+  }, [updateActive])
 
   const deleteDay = useCallback((dayId: string) => {
-    setTrip(p => ({ ...p, days: p.days.filter(d => d.id !== dayId) }))
-  }, [])
+    updateActive(t => ({ ...t, days: t.days.filter(d => d.id !== dayId) }))
+  }, [updateActive])
 
   const updateTripTitle = useCallback((title: string) => {
-    setTrip(p => ({ ...p, title }))
-  }, [])
+    updateActive(t => ({ ...t, title }))
+  }, [updateActive])
 
   const newActivity = useCallback((_dayId: string): Activity => ({
     id: nanoid(),
@@ -90,12 +108,47 @@ export function useTrip() {
     notes: '',
   }), [])
 
-  const resetTrip = useCallback(() => {
-    setTrip(sampleTrip)
-  }, [])
+  const togglePending = useCallback((itemId: string) => {
+    updateActive(t => ({
+      ...t,
+      pendingItems: t.pendingItems.map(p =>
+        p.id !== itemId ? p : {
+          ...p,
+          status: p.status === 'pendente' ? 'feito' : 'pendente' as PendingStatus,
+        }
+      ),
+    }))
+  }, [updateActive])
+
+  const savePendingItem = useCallback((item: PendingItem) => {
+    updateActive(t => ({
+      ...t,
+      pendingItems: t.pendingItems.some(p => p.id === item.id)
+        ? t.pendingItems.map(p => p.id === item.id ? item : p)
+        : [...t.pendingItems, item],
+    }))
+  }, [updateActive])
+
+  const deletePendingItem = useCallback((itemId: string) => {
+    updateActive(t => ({ ...t, pendingItems: t.pendingItems.filter(p => p.id !== itemId) }))
+  }, [updateActive])
+
+  const newPendingItem = useCallback((): PendingItem => ({
+    id: nanoid(),
+    title: '',
+    dateNeeded: '',
+    howTo: '',
+    responsible: '',
+    status: 'pendente',
+    priority: 'normal',
+    notes: '',
+  }), [])
 
   return {
+    trips: state.trips,
+    activeTripId: state.activeTripId,
     trip,
+    setActiveTrip,
     toggleActivity,
     saveActivity,
     deleteActivity,
@@ -103,6 +156,9 @@ export function useTrip() {
     deleteDay,
     updateTripTitle,
     newActivity,
-    resetTrip,
+    togglePending,
+    savePendingItem,
+    deletePendingItem,
+    newPendingItem,
   }
 }

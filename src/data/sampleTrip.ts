@@ -3,6 +3,7 @@ import { Trip } from '../types'
 export const sampleTrip: Trip = {
   id: 'trip-1',
   title: 'Lisboa & Porto 2026',
+  pendingItems: [],
   days: [
     {
       id: 'day-1',

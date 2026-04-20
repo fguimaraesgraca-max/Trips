@@ -11,6 +11,9 @@ export type TipCategory = 'food' | 'transport' | 'culture' | 'safety' | 'general
 
 export type TipSource = 'TripAdvisor' | 'Google' | 'Booking' | 'Viajante'
 
+export type PendingStatus = 'pendente' | 'feito'
+export type PendingPriority = 'critico' | 'importante' | 'normal'
+
 export interface Activity {
   id: string
   time: string
@@ -30,10 +33,22 @@ export interface Day {
   activities: Activity[]
 }
 
+export interface PendingItem {
+  id: string
+  title: string
+  dateNeeded: string   // human-readable, e.g. "Qua 29/04 — MADRUGADA"
+  howTo: string
+  responsible: string
+  status: PendingStatus
+  priority: PendingPriority
+  notes: string
+}
+
 export interface Trip {
   id: string
   title: string
   days: Day[]
+  pendingItems: PendingItem[]
 }
 
 export interface WeatherCurrent {
