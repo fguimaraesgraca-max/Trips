@@ -1,0 +1,67 @@
+import { useState, useEffect } from 'react'
+import { WeatherData } from '../types'
+
+const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search'
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast'
+
+const cache: Record<string, { data: WeatherData; ts: number }> = {}
+const TTL = 30 * 60 * 1000
+
+async function fetchWeather(city: string): Promise<WeatherData> {
+  const key = city.toLowerCase()
+  const hit = cache[key]
+  if (hit && Date.now() - hit.ts < TTL) return hit.data
+
+  const geoRes = await fetch(`${GEO_URL}?name=${encodeURIComponent(city)}&count=1&language=pt`)
+  const geoJson = await geoRes.json()
+  if (!geoJson.results?.length) throw new Error('Cidade não encontrada')
+
+  const { latitude: lat, longitude: lon } = geoJson.results[0]
+  const params = new URLSearchParams({
+    latitude: lat,
+    longitude: lon,
+    current: 'temperature_2m,weathercode,windspeed_10m,relativehumidity_2m',
+    daily: 'temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max',
+    timezone: 'auto',
+    forecast_days: '5',
+  })
+  const wRes = await fetch(`${WEATHER_URL}?${params}`)
+  const w = await wRes.json()
+
+  const data: WeatherData = {
+    city,
+    current: {
+      temperature: Math.round(w.current.temperature_2m),
+      weatherCode: w.current.weathercode,
+      windspeed: Math.round(w.current.windspeed_10m),
+      humidity: w.current.relativehumidity_2m,
+    },
+    daily: w.daily.time.map((date: string, i: number) => ({
+      date,
+      maxTemp: Math.round(w.daily.temperature_2m_max[i]),
+      minTemp: Math.round(w.daily.temperature_2m_min[i]),
+      weatherCode: w.daily.weathercode[i],
+      precipitationProbability: w.daily.precipitation_probability_max[i],
+    })),
+  }
+
+  cache[key] = { data, ts: Date.now() }
+  return data
+}
+
+export function useWeather(city: string | null) {
+  const [weather, setWeather] = useState<WeatherData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!city) return
+    setLoading(true)
+    setError(null)
+    fetchWeather(city)
+      .then(d => { setWeather(d); setLoading(false) })
+      .catch(() => { setError('Não foi possível carregar o clima'); setLoading(false) })
+  }, [city])
+
+  return { weather, loading, error }
+}
