@@ -2,7 +2,7 @@ name: Deploy Viaticum
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/trip-planning-app-kPSQ4]
 
 permissions:
   contents: read
