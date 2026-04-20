@@ -23,8 +23,8 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'Nossa Viagem',
-        short_name: 'Viagem',
+        name: 'Viaticum',
+        short_name: 'Viaticum',
         description: 'Gerencie sua viagem juntos',
         theme_color: '#4f46e5',
         background_color: '#f9fafb',

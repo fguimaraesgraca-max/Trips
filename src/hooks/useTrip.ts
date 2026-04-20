@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Trip, Activity, Day } from '../types'
 import { sampleTrip } from '../data/sampleTrip'
 
-const KEY = 'nossa-viagem-v1'
+const KEY = 'viaticum-v1'
 
 function load(): Trip {
   try {
