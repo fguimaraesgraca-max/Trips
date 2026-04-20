@@ -9,7 +9,8 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply text-gray-900 antialiased;
+    background-color: #FAF6ED;
     overscroll-behavior: none;
   }
 

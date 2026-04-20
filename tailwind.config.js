@@ -7,12 +7,14 @@ export default {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
       },
       colors: {
-        brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
+        indigo: {
+          50:  '#E6F7F6',
+          100: '#C2EBE8',
+          200: '#99DAD6',
+          400: '#33C9BB',
+          500: '#22C4B5',
+          600: '#0D9488',
+          700: '#0F766E',
         },
       },
       animation: {

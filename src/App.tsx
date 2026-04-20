@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Component, ReactNode } from 'react'
 import { ChevronDown, X } from 'lucide-react'
 import { useTrip } from './hooks/useTrip'
 import BottomNav, { Tab } from './components/BottomNav'
@@ -7,6 +7,30 @@ import ItineraryPage from './pages/ItineraryPage'
 import TipsPage from './pages/TipsPage'
 import PendenciasPage from './pages/PendenciasPage'
 import { Trip } from './types'
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      const err = this.state.error as Error
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#FAF6ED' }}>
+          <p className="text-4xl mb-4">⚠️</p>
+          <p className="text-gray-900 font-semibold mb-2">Algo deu errado</p>
+          <p className="text-gray-500 text-sm mb-6 max-w-xs">{err.message}</p>
+          <button
+            onClick={() => { localStorage.removeItem('viaticum-v2'); window.location.reload() }}
+            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold"
+          >
+            Reiniciar app
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -26,8 +50,8 @@ function TripSwitcher({
 
   if (trips.length <= 1) {
     return (
-      <div className="flex items-center justify-center px-4 py-2 border-b border-gray-100 bg-white">
-        <p className="text-sm font-semibold text-gray-700">{current.title}</p>
+      <div className="flex items-center justify-center px-4 py-2 border-b border-gray-100" style={{ background: '#FAF6ED' }}>
+        <p className="text-sm font-semibold text-gray-900">{current.title}</p>
       </div>
     )
   }
@@ -36,7 +60,8 @@ function TripSwitcher({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 border-b border-gray-100 bg-white"
+        className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 border-b border-gray-100"
+        style={{ background: '#FAF6ED' }}
       >
         <span className="text-sm font-semibold text-gray-700">{current.title}</span>
         <ChevronDown size={14} className="text-gray-400" />
@@ -109,7 +134,8 @@ export default function App() {
   const pendingCount = trip.pendingItems.filter(p => p.status === 'pendente').length
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <ErrorBoundary>
+    <div className="min-h-screen pb-20" style={{ background: '#FAF6ED' }}>
       <div className="max-w-lg mx-auto">
         <TripSwitcher trips={trips} activeId={activeTripId} onChange={setActiveTrip} />
 
@@ -154,5 +180,6 @@ export default function App() {
 
       <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
     </div>
+    </ErrorBoundary>
   )
 }
