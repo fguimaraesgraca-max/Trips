@@ -36,7 +36,7 @@ export default function WelcomePage({ onContinue }: Props) {
         <div style={fade(0)} className="mb-8">
           <div className="w-28 h-28 mx-auto rounded-3xl shadow-2xl overflow-hidden border-4 border-white/30">
             <img
-              src="icon.svg"
+              src={`${import.meta.env.BASE_URL}icon.svg`}
               alt="Viaticum"
               className="w-full h-full"
             />

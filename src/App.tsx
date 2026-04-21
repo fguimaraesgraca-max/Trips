@@ -1,5 +1,5 @@
 import { useState, Component, ReactNode } from 'react'
-import { X, Plus, Check, ChevronRight } from 'lucide-react'
+import { X, Plus, Check, ChevronRight, Map } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -42,27 +42,136 @@ function todayISO() { return new Date().toISOString().slice(0, 10) }
 function tripGradient(trip: Trip): string {
   const t = trip.title.toLowerCase()
   if (t.includes('lençóis') || t.includes('maranhão') || t.includes('maranhenses'))
-    return 'linear-gradient(135deg, #1BB8A9, #0D9488)'
+    return 'linear-gradient(135deg,#1BB8A9,#0D9488)'
   if (t.includes('lisboa') || t.includes('porto') || t.includes('portugal'))
-    return 'linear-gradient(135deg, #2980B9, #1A5276)'
+    return 'linear-gradient(135deg,#2980B9,#1A5276)'
   if (t.includes('paris') || t.includes('france'))
-    return 'linear-gradient(135deg, #8E44AD, #6C3483)'
+    return 'linear-gradient(135deg,#8E44AD,#6C3483)'
   if (t.includes('new york') || t.includes('eua') || t.includes('usa'))
-    return 'linear-gradient(135deg, #E74C3C, #922B21)'
+    return 'linear-gradient(135deg,#E74C3C,#922B21)'
   if (t.includes('tokyo') || t.includes('japão') || t.includes('japan'))
-    return 'linear-gradient(135deg, #E67E22, #CA6F1E)'
-  return 'linear-gradient(135deg, #7F8C8D, #566573)'
+    return 'linear-gradient(135deg,#E67E22,#CA6F1E)'
+  return 'linear-gradient(135deg,#7F8C8D,#566573)'
 }
 
 function tripDateRange(trip: Trip): string {
   if (!trip.days.length) return 'Sem datas'
-  const first = trip.days[0].date
-  const last = trip.days[trip.days.length - 1].date
   try {
-    const f = format(parseISO(first), "d 'de' MMM", { locale: ptBR })
-    const l = format(parseISO(last), "d 'de' MMM yyyy", { locale: ptBR })
+    const f = format(parseISO(trip.days[0].date), "d 'de' MMM", { locale: ptBR })
+    const l = format(parseISO(trip.days[trip.days.length - 1].date), "d 'de' MMM yyyy", { locale: ptBR })
     return `${f} – ${l}`
   } catch { return '' }
+}
+
+// ─── SVG Stamp ────────────────────────────────────────────────────────────────
+function Stamp({ uid, color, emoji, label, rotation = 0 }: {
+  uid: string; color: string; emoji: string; label: string; rotation?: number
+}) {
+  const W = 42, H = 50, B = 5, R = 2.4, STEP = 7
+  const maskId = `sm-${uid}`
+
+  // Perforation hole positions along each border edge
+  const holes: { x: number; y: number }[] = []
+  for (let x = B + 2; x <= W - B - 2; x += STEP) {
+    holes.push({ x, y: R + 0.5 })          // top
+    holes.push({ x, y: H - R - 0.5 })      // bottom
+  }
+  for (let y = B + 2; y <= H - B - 2; y += STEP) {
+    holes.push({ x: R + 0.5, y })           // left
+    holes.push({ x: W - R - 0.5, y })       // right
+  }
+
+  return (
+    <div
+      style={{ transform: `rotate(${rotation}deg)`, flexShrink: 0, filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.35))' }}
+    >
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} overflow="visible">
+        <defs>
+          <mask id={maskId}>
+            {/* Start white = show everything */}
+            <rect x={0} y={0} width={W} height={H} rx={2} fill="white" />
+            {/* Black circles = punch holes */}
+            {holes.map((h, i) => <circle key={i} cx={h.x} cy={h.y} r={R} fill="black" />)}
+          </mask>
+        </defs>
+
+        {/* Coloured stamp face (behind the white frame) */}
+        <rect x={B} y={B} width={W - 2 * B} height={H - 2 * B} fill={color} rx={1.5} />
+
+        {/* White paper frame with perforated holes cut out via mask */}
+        <rect x={0} y={0} width={W} height={H} rx={2} fill="white" mask={`url(#${maskId})`} />
+
+        {/* Emoji */}
+        <text x={W / 2} y={H / 2 - 2} textAnchor="middle" dominantBaseline="middle" fontSize={17}>
+          {emoji}
+        </text>
+
+        {/* Label */}
+        <text
+          x={W / 2} y={H - B - 2.5}
+          textAnchor="middle" dominantBaseline="middle"
+          fontSize={5} fill="rgba(255,255,255,0.92)"
+          fontWeight="bold" fontFamily="system-ui, sans-serif"
+          letterSpacing="0.7"
+        >
+          {label.toUpperCase()}
+        </text>
+      </svg>
+    </div>
+  )
+}
+
+// ─── Trip Banner ──────────────────────────────────────────────────────────────
+const STAMPS = [
+  { color: '#27AE60', emoji: '🌊', label: 'Água',      rotation: -5 },
+  { color: '#E67E22', emoji: '✈️', label: 'Voo',       rotation:  3 },
+  { color: '#E74C3C', emoji: '❤️', label: 'Amor',      rotation: -3 },
+  { color: '#2980B9', emoji: '⭐', label: 'Estrelas',   rotation:  5 },
+  { color: '#D4AC0D', emoji: '🧳', label: 'Viagem',    rotation: -2 },
+  { color: '#8E44AD', emoji: '🌅', label: 'Memória',   rotation:  4 },
+]
+
+function TripBanner() {
+  return (
+    <div
+      className="w-full px-4 pt-4 pb-3 flex items-center justify-between gap-3"
+      style={{ background: 'linear-gradient(135deg,#0D9488 0%,#0A6B60 100%)' }}
+    >
+      {/* Left: app identity */}
+      <div className="flex-shrink-0">
+        <p className="text-white font-bold text-xl tracking-tight leading-none">Viaticum</p>
+        <p className="text-white/55 text-[11px] mt-0.5 font-light">por Filipe &amp; Patrícia</p>
+      </div>
+
+      {/* Right: stamps row */}
+      <div className="flex items-end gap-1.5 overflow-x-auto scrollbar-hide pr-1" style={{ paddingBottom: 4 }}>
+        {STAMPS.map((s, i) => (
+          <Stamp key={i} uid={String(i)} color={s.color} emoji={s.emoji} label={s.label} rotation={s.rotation} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Trip Switcher FAB (bottom-left) ──────────────────────────────────────────
+function TripSwitcherFab({ trip, onClick }: { trip: Trip; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="fixed left-3 z-40 flex items-center gap-2 bg-white rounded-2xl pl-2.5 pr-3 py-2 shadow-lg border border-gray-100 active:scale-95 transition-transform"
+      style={{ bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
+    >
+      {/* Coloured dot matching trip gradient */}
+      <div
+        className="w-5 h-5 rounded-lg flex-shrink-0"
+        style={{ background: tripGradient(trip) }}
+      />
+      <span className="text-[11px] font-semibold text-gray-700 max-w-[110px] truncate leading-none">
+        {trip.title}
+      </span>
+      <Map size={12} className="text-gray-400 flex-shrink-0" />
+    </button>
+  )
 }
 
 // ─── Create Trip Modal ────────────────────────────────────────────────────────
@@ -84,13 +193,14 @@ function CreateTripModal({
     onClose()
   }
 
-  const inputCls = 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+  const inputCls =
+    'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-t-3xl pb-safe">
+      <div className="relative bg-white rounded-t-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">Nova viagem</h2>
           <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
@@ -99,20 +209,17 @@ function CreateTripModal({
           <div>
             <label className={labelCls}>Nome da viagem *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="ex: Europa Inverno 2027"
-              className={inputCls} />
+              placeholder="ex: Europa Inverno 2027" className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>Primeira cidade *</label>
             <input value={city} onChange={e => setCity(e.target.value)}
-              placeholder="ex: Barcelona"
-              className={inputCls} />
+              placeholder="ex: Barcelona" className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>País</label>
             <input value={country} onChange={e => setCountry(e.target.value)}
-              placeholder="ex: Espanha"
-              className={inputCls} />
+              placeholder="ex: Espanha" className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>Data de partida *</label>
@@ -120,7 +227,7 @@ function CreateTripModal({
               className={inputCls} />
           </div>
         </div>
-        <div className="px-5 pb-8 pt-2">
+        <div className="px-5 pb-6 pt-2">
           <button
             onClick={handle}
             disabled={!title.trim() || !city.trim() || !date}
@@ -146,12 +253,9 @@ function TripMenu({
   activeId: string
   onChange: (id: string) => void
   onClose: () => void
-  onCreate?: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
 }) {
   const [creating, setCreating] = useState(false)
-
-  function select(id: string) { onChange(id); onClose() }
 
   return (
     <>
@@ -160,26 +264,29 @@ function TripMenu({
         <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-gray-100">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Minhas Viagens</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{trips.length} viagem{trips.length !== 1 ? 's' : ''} guardada{trips.length !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {trips.length} viagem{trips.length !== 1 ? 's' : ''} guardada{trips.length !== 1 ? 's' : ''}
+            </p>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+          <button
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"
+          >
             <X size={18} className="text-gray-600" />
           </button>
         </div>
 
-        {/* Trip list */}
+        {/* Trip cards */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           {trips.map(t => {
             const isActive = t.id === activeId
             const pending = t.pendingItems.filter(p => p.status === 'pendente').length
-
             return (
               <button
                 key={t.id}
-                onClick={() => select(t.id)}
+                onClick={() => { onChange(t.id); onClose() }}
                 className="w-full text-left rounded-3xl overflow-hidden shadow-md active:scale-[0.98] transition-transform"
               >
-                {/* Gradient card header */}
                 <div
                   className="px-5 pt-5 pb-4 flex items-start justify-between"
                   style={{ background: tripGradient(t) }}
@@ -194,13 +301,11 @@ function TripMenu({
                     </p>
                   </div>
                   {isActive && (
-                    <div className="ml-3 w-8 h-8 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">
+                    <div className="ml-3 mt-1 w-8 h-8 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">
                       <Check size={16} className="text-white" strokeWidth={3} />
                     </div>
                   )}
                 </div>
-
-                {/* Card footer */}
                 <div className="bg-white px-5 py-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
                     {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
@@ -211,7 +316,7 @@ function TripMenu({
             )
           })}
 
-          {/* Add new trip */}
+          {/* Add trip */}
           <button
             onClick={() => setCreating(true)}
             className="w-full border-2 border-dashed border-gray-300 rounded-3xl py-6 flex flex-col items-center gap-2 text-gray-400 active:border-indigo-400 active:text-indigo-500 transition-colors"
@@ -221,7 +326,6 @@ function TripMenu({
             </div>
             <span className="text-sm font-semibold">Adicionar nova viagem</span>
           </button>
-
           <div className="h-6" />
         </div>
       </div>
@@ -236,26 +340,6 @@ function TripMenu({
         />
       )}
     </>
-  )
-}
-
-// ─── Trip Header (top bar) ────────────────────────────────────────────────────
-function TripHeader({ trip, onOpenMenu }: { trip: Trip; onOpenMenu: () => void }) {
-  return (
-    <button
-      onClick={onOpenMenu}
-      className="w-full flex items-center justify-between px-4 py-3 border-b border-black/5"
-      style={{ background: 'white' }}
-    >
-      <div className="flex items-center gap-2.5 min-w-0">
-        <div
-          className="w-7 h-7 rounded-lg flex-shrink-0"
-          style={{ background: tripGradient(trip) }}
-        />
-        <span className="text-sm font-semibold text-gray-900 truncate">{trip.title}</span>
-      </div>
-      <span className="text-xs text-indigo-600 font-semibold flex-shrink-0 ml-2">Trocar ›</span>
-    </button>
   )
 }
 
@@ -314,7 +398,8 @@ export default function App() {
 
       <div className="min-h-screen pb-20" style={{ background: '#FAF6ED' }}>
         <div className="max-w-lg mx-auto">
-          <TripHeader trip={trip} onOpenMenu={() => setShowTripMenu(true)} />
+          {/* Decorative stamp banner */}
+          <TripBanner />
 
           <div className="overflow-y-auto">
             {tab === 'hoje' && (
@@ -352,9 +437,12 @@ export default function App() {
             )}
           </div>
         </div>
-
-        <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
       </div>
+
+      {/* Trip switcher FAB — bottom-left, above nav */}
+      <TripSwitcherFab trip={trip} onClick={() => setShowTripMenu(true)} />
+
+      <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
     </ErrorBoundary>
   )
 }
