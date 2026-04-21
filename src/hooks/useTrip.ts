@@ -144,6 +144,23 @@ export function useTrip() {
     notes: '',
   }), [])
 
+  const createTrip = useCallback((title: string, firstCity: string, country: string, startDate: string) => {
+    const id = nanoid()
+    const newTrip: Trip = {
+      id,
+      title,
+      pendingItems: [],
+      days: [{
+        id: nanoid(),
+        date: startDate,
+        city: firstCity,
+        country,
+        activities: [],
+      }],
+    }
+    setState(s => ({ trips: [...s.trips, newTrip], activeTripId: id }))
+  }, [])
+
   return {
     trips: state.trips,
     activeTripId: state.activeTripId,
@@ -160,5 +177,6 @@ export function useTrip() {
     savePendingItem,
     deletePendingItem,
     newPendingItem,
+    createTrip,
   }
 }

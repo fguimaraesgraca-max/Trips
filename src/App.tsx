@@ -1,13 +1,17 @@
 import { useState, Component, ReactNode } from 'react'
-import { ChevronDown, X } from 'lucide-react'
+import { X, Plus, Check, ChevronRight } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
 import BottomNav, { Tab } from './components/BottomNav'
 import TodayPage from './pages/TodayPage'
 import ItineraryPage from './pages/ItineraryPage'
 import TipsPage from './pages/TipsPage'
 import PendenciasPage from './pages/PendenciasPage'
+import WelcomePage from './pages/WelcomePage'
 import { Trip } from './types'
 
+// ─── Error Boundary ───────────────────────────────────────────────────────────
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null }
   static getDerivedStateFromError(error: Error) { return { error } }
@@ -32,86 +36,237 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
   }
 }
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10)
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function todayISO() { return new Date().toISOString().slice(0, 10) }
+
+function tripGradient(trip: Trip): string {
+  const t = trip.title.toLowerCase()
+  if (t.includes('lençóis') || t.includes('maranhão') || t.includes('maranhenses'))
+    return 'linear-gradient(135deg, #1BB8A9, #0D9488)'
+  if (t.includes('lisboa') || t.includes('porto') || t.includes('portugal'))
+    return 'linear-gradient(135deg, #2980B9, #1A5276)'
+  if (t.includes('paris') || t.includes('france'))
+    return 'linear-gradient(135deg, #8E44AD, #6C3483)'
+  if (t.includes('new york') || t.includes('eua') || t.includes('usa'))
+    return 'linear-gradient(135deg, #E74C3C, #922B21)'
+  if (t.includes('tokyo') || t.includes('japão') || t.includes('japan'))
+    return 'linear-gradient(135deg, #E67E22, #CA6F1E)'
+  return 'linear-gradient(135deg, #7F8C8D, #566573)'
 }
 
-function TripSwitcher({
+function tripDateRange(trip: Trip): string {
+  if (!trip.days.length) return 'Sem datas'
+  const first = trip.days[0].date
+  const last = trip.days[trip.days.length - 1].date
+  try {
+    const f = format(parseISO(first), "d 'de' MMM", { locale: ptBR })
+    const l = format(parseISO(last), "d 'de' MMM yyyy", { locale: ptBR })
+    return `${f} – ${l}`
+  } catch { return '' }
+}
+
+// ─── Create Trip Modal ────────────────────────────────────────────────────────
+function CreateTripModal({
+  onClose,
+  onCreate,
+}: {
+  onClose: () => void
+  onCreate: (title: string, city: string, country: string, date: string) => void
+}) {
+  const [title, setTitle] = useState('')
+  const [city, setCity] = useState('')
+  const [country, setCountry] = useState('Brasil')
+  const [date, setDate] = useState(todayISO())
+
+  function handle() {
+    if (!title.trim() || !city.trim() || !date) return
+    onCreate(title.trim(), city.trim(), country.trim() || 'Brasil', date)
+    onClose()
+  }
+
+  const inputCls = 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+  const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
+
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-t-3xl pb-safe">
+        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">Nova viagem</h2>
+          <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
+        </div>
+        <div className="px-5 py-5 space-y-4">
+          <div>
+            <label className={labelCls}>Nome da viagem *</label>
+            <input value={title} onChange={e => setTitle(e.target.value)}
+              placeholder="ex: Europa Inverno 2027"
+              className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Primeira cidade *</label>
+            <input value={city} onChange={e => setCity(e.target.value)}
+              placeholder="ex: Barcelona"
+              className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>País</label>
+            <input value={country} onChange={e => setCountry(e.target.value)}
+              placeholder="ex: Espanha"
+              className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Data de partida *</label>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)}
+              className={inputCls} />
+          </div>
+        </div>
+        <div className="px-5 pb-8 pt-2">
+          <button
+            onClick={handle}
+            disabled={!title.trim() || !city.trim() || !date}
+            className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+          >
+            Criar viagem
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Trip Menu (full-screen) ──────────────────────────────────────────────────
+function TripMenu({
   trips,
   activeId,
   onChange,
+  onClose,
+  onCreateTrip,
 }: {
   trips: Trip[]
   activeId: string
   onChange: (id: string) => void
+  onClose: () => void
+  onCreate?: () => void
+  onCreateTrip: (title: string, city: string, country: string, date: string) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const current = trips.find(t => t.id === activeId) ?? trips[0]
+  const [creating, setCreating] = useState(false)
 
-  if (trips.length <= 1) {
-    return (
-      <div className="flex items-center justify-center px-4 py-2 border-b border-gray-100" style={{ background: '#FAF6ED' }}>
-        <p className="text-sm font-semibold text-gray-900">{current.title}</p>
-      </div>
-    )
-  }
+  function select(id: string) { onChange(id); onClose() }
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 border-b border-gray-100"
-        style={{ background: '#FAF6ED' }}
-      >
-        <span className="text-sm font-semibold text-gray-700">{current.title}</span>
-        <ChevronDown size={14} className="text-gray-400" />
-      </button>
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#FAF6ED' }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-gray-100">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Minhas Viagens</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{trips.length} viagem{trips.length !== 1 ? 's' : ''} guardada{trips.length !== 1 ? 's' : ''}</p>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+            <X size={18} className="text-gray-600" />
+          </button>
+        </div>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative bg-white rounded-t-2xl">
-            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-gray-900">Minhas viagens</h2>
-              <button onClick={() => setOpen(false)}>
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="px-4 py-3 space-y-2">
-              {trips.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => { onChange(t.id); setOpen(false) }}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border text-left transition-colors ${
-                    t.id === activeId
-                      ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'bg-white border-gray-100 text-gray-900 active:bg-gray-50'
-                  }`}
+        {/* Trip list */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          {trips.map(t => {
+            const isActive = t.id === activeId
+            const pending = t.pendingItems.filter(p => p.status === 'pendente').length
+
+            return (
+              <button
+                key={t.id}
+                onClick={() => select(t.id)}
+                className="w-full text-left rounded-3xl overflow-hidden shadow-md active:scale-[0.98] transition-transform"
+              >
+                {/* Gradient card header */}
+                <div
+                  className="px-5 pt-5 pb-4 flex items-start justify-between"
+                  style={{ background: tripGradient(t) }}
                 >
-                  <div>
-                    <p className="text-sm font-semibold">{t.title}</p>
-                    <p className={`text-xs mt-0.5 ${t.id === activeId ? 'text-indigo-200' : 'text-gray-400'}`}>
-                      {t.days.length} dias
-                      {t.pendingItems.filter(p => p.status === 'pendente').length > 0 &&
-                        ` · ${t.pendingItems.filter(p => p.status === 'pendente').length} pendência${t.pendingItems.filter(p => p.status === 'pendente').length > 1 ? 's' : ''}`}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/70 text-xs font-medium mb-1">{tripDateRange(t)}</p>
+                    <h3 className="text-white font-bold text-lg leading-tight">{t.title}</h3>
+                    <p className="text-white/70 text-sm mt-1">
+                      {t.days.length} dia{t.days.length !== 1 ? 's' : ''}
+                      {t.days[0] ? ` · ${t.days[0].city}` : ''}
+                      {pending > 0 ? ` · ${pending} pendência${pending !== 1 ? 's' : ''}` : ''}
                     </p>
                   </div>
-                  {t.id === activeId && (
-                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Ativa</span>
+                  {isActive && (
+                    <div className="ml-3 w-8 h-8 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">
+                      <Check size={16} className="text-white" strokeWidth={3} />
+                    </div>
                   )}
-                </button>
-              ))}
+                </div>
+
+                {/* Card footer */}
+                <div className="bg-white px-5 py-3 flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
+                    {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
+                  </span>
+                  <ChevronRight size={16} className="text-gray-300" />
+                </div>
+              </button>
+            )
+          })}
+
+          {/* Add new trip */}
+          <button
+            onClick={() => setCreating(true)}
+            className="w-full border-2 border-dashed border-gray-300 rounded-3xl py-6 flex flex-col items-center gap-2 text-gray-400 active:border-indigo-400 active:text-indigo-500 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <Plus size={22} />
             </div>
-            <div className="pb-8" />
-          </div>
+            <span className="text-sm font-semibold">Adicionar nova viagem</span>
+          </button>
+
+          <div className="h-6" />
         </div>
+      </div>
+
+      {creating && (
+        <CreateTripModal
+          onClose={() => setCreating(false)}
+          onCreate={(title, city, country, date) => {
+            onCreateTrip(title, city, country, date)
+            onClose()
+          }}
+        />
       )}
     </>
   )
 }
 
+// ─── Trip Header (top bar) ────────────────────────────────────────────────────
+function TripHeader({ trip, onOpenMenu }: { trip: Trip; onOpenMenu: () => void }) {
+  return (
+    <button
+      onClick={onOpenMenu}
+      className="w-full flex items-center justify-between px-4 py-3 border-b border-black/5"
+      style={{ background: 'white' }}
+    >
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div
+          className="w-7 h-7 rounded-lg flex-shrink-0"
+          style={{ background: tripGradient(trip) }}
+        />
+        <span className="text-sm font-semibold text-gray-900 truncate">{trip.title}</span>
+      </div>
+      <span className="text-xs text-indigo-600 font-semibold flex-shrink-0 ml-2">Trocar ›</span>
+    </button>
+  )
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState<Tab>('hoje')
+  const [showWelcome, setShowWelcome] = useState(
+    () => !sessionStorage.getItem('viaticum-welcomed')
+  )
+  const [showTripMenu, setShowTripMenu] = useState(false)
+
   const {
     trips,
     activeTripId,
@@ -128,58 +283,78 @@ export default function App() {
     savePendingItem,
     deletePendingItem,
     newPendingItem,
+    createTrip,
   } = useTrip()
 
   const today = todayISO()
   const pendingCount = trip.pendingItems.filter(p => p.status === 'pendente').length
 
+  if (showWelcome) {
+    return (
+      <ErrorBoundary>
+        <WelcomePage onContinue={() => {
+          sessionStorage.setItem('viaticum-welcomed', '1')
+          setShowWelcome(false)
+        }} />
+      </ErrorBoundary>
+    )
+  }
+
   return (
     <ErrorBoundary>
-    <div className="min-h-screen pb-20" style={{ background: '#FAF6ED' }}>
-      <div className="max-w-lg mx-auto">
-        <TripSwitcher trips={trips} activeId={activeTripId} onChange={setActiveTrip} />
+      {showTripMenu && (
+        <TripMenu
+          trips={trips}
+          activeId={activeTripId}
+          onChange={setActiveTrip}
+          onClose={() => setShowTripMenu(false)}
+          onCreateTrip={createTrip}
+        />
+      )}
 
-        <div className="overflow-y-auto">
-          {tab === 'hoje' && (
-            <TodayPage
-              trip={trip}
-              todayDate={today}
-              onToggle={toggleActivity}
-              onSave={saveActivity}
-              onDelete={deleteActivity}
-              newActivity={newActivity}
-            />
-          )}
-          {tab === 'roteiro' && (
-            <ItineraryPage
-              trip={trip}
-              todayDate={today}
-              onToggle={toggleActivity}
-              onSave={saveActivity}
-              onDelete={deleteActivity}
-              onDeleteDay={deleteDay}
-              onAddDay={addDay}
-              newActivity={newActivity}
-              onUpdateTitle={updateTripTitle}
-            />
-          )}
-          {tab === 'dicas' && (
-            <TipsPage trip={trip} />
-          )}
-          {tab === 'pendencias' && (
-            <PendenciasPage
-              items={trip.pendingItems}
-              onToggle={togglePending}
-              onSave={savePendingItem}
-              onDelete={deletePendingItem}
-              newItem={newPendingItem}
-            />
-          )}
+      <div className="min-h-screen pb-20" style={{ background: '#FAF6ED' }}>
+        <div className="max-w-lg mx-auto">
+          <TripHeader trip={trip} onOpenMenu={() => setShowTripMenu(true)} />
+
+          <div className="overflow-y-auto">
+            {tab === 'hoje' && (
+              <TodayPage
+                trip={trip}
+                todayDate={today}
+                onToggle={toggleActivity}
+                onSave={saveActivity}
+                onDelete={deleteActivity}
+                newActivity={newActivity}
+              />
+            )}
+            {tab === 'roteiro' && (
+              <ItineraryPage
+                trip={trip}
+                todayDate={today}
+                onToggle={toggleActivity}
+                onSave={saveActivity}
+                onDelete={deleteActivity}
+                onDeleteDay={deleteDay}
+                onAddDay={addDay}
+                newActivity={newActivity}
+                onUpdateTitle={updateTripTitle}
+              />
+            )}
+            {tab === 'dicas' && <TipsPage trip={trip} />}
+            {tab === 'pendencias' && (
+              <PendenciasPage
+                items={trip.pendingItems}
+                onToggle={togglePending}
+                onSave={savePendingItem}
+                onDelete={deletePendingItem}
+                newItem={newPendingItem}
+              />
+            )}
+          </div>
         </div>
-      </div>
 
-      <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
-    </div>
+        <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
+      </div>
     </ErrorBoundary>
   )
 }
