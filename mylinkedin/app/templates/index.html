@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkedIn Post Generator</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="#0A66C2" width="36" height="36"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        <span>Post Generator</span>
+      </div>
+    </header>
+
+    <main>
+      <h1>Criar Post para o LinkedIn</h1>
+      <p class="subtitle">Preencha as informações abaixo e deixe os agentes criarem um post profissional para você.</p>
+
+      <form action="/generate" method="post" enctype="multipart/form-data" id="postForm">
+
+        <div class="form-group">
+          <label for="description">Descreva o evento ou situação <span class="required">*</span></label>
+          <textarea
+            id="description"
+            name="description"
+            rows="5"
+            placeholder="Ex: Participei do evento Tech Summit 2025 em São Paulo, onde apresentei sobre IA generativa para 300 pessoas. Foi incrível conectar com líderes da indústria e compartilhar aprendizados..."
+            required
+          ></textarea>
+          <span class="hint">Quanto mais contexto, melhor o post. Não precisa ser perfeito.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Idioma do post</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="language" value="pt" checked />
+              <span class="radio-label">🇧🇷 Português</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="language" value="en" />
+              <span class="radio-label">🇺🇸 English</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="language" value="both" />
+              <span class="radio-label">🌐 Ambos (PT + EN)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="links">Links a incluir no post</label>
+          <textarea
+            id="links"
+            name="links"
+            rows="3"
+            placeholder="https://evento.com&#10;https://meusite.com/artigo"
+          ></textarea>
+          <span class="hint">Um link por linha (opcional)</span>
+        </div>
+
+        <div class="form-group">
+          <label for="images">Fotos do evento</label>
+          <div class="upload-area" id="uploadArea">
+            <input
+              type="file"
+              id="images"
+              name="images"
+              multiple
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              class="file-input"
+            />
+            <div class="upload-placeholder" id="uploadPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+              <p>Clique ou arraste as imagens aqui</p>
+              <span>JPEG, PNG, GIF, WebP · máx 5 MB cada</span>
+            </div>
+            <div id="imagePreview" class="image-preview hidden"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="extra_context">Contexto extra (opcional)</label>
+          <textarea
+            id="extra_context"
+            name="extra_context"
+            rows="3"
+            placeholder="Algum detalhe importante, tom desejado, pessoas a mencionar, etc."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span class="btn-text">✨ Gerar Post com IA</span>
+          <span class="btn-loading hidden">
+            <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+            Gerando com IA...
+          </span>
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
