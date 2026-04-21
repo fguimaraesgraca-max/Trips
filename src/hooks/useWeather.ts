@@ -7,8 +7,8 @@ const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast'
 const cache: Record<string, { data: WeatherData; ts: number }> = {}
 const TTL = 30 * 60 * 1000
 
-async function fetchWeather(city: string): Promise<WeatherData> {
-  const key = city.toLowerCase()
+async function fetchWeatherWithDays(city: string, forecastDays: number): Promise<WeatherData> {
+  const key = `${city.toLowerCase()}:${forecastDays}`
   const hit = cache[key]
   if (hit && Date.now() - hit.ts < TTL) return hit.data
 
@@ -18,12 +18,12 @@ async function fetchWeather(city: string): Promise<WeatherData> {
 
   const { latitude: lat, longitude: lon } = geoJson.results[0]
   const params = new URLSearchParams({
-    latitude: lat,
-    longitude: lon,
+    latitude: String(lat),
+    longitude: String(lon),
     current: 'temperature_2m,weathercode,windspeed_10m,relativehumidity_2m',
     daily: 'temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max',
     timezone: 'auto',
-    forecast_days: '5',
+    forecast_days: String(forecastDays),
   })
   const wRes = await fetch(`${WEATHER_URL}?${params}`)
   const w = await wRes.json()
@@ -49,6 +49,10 @@ async function fetchWeather(city: string): Promise<WeatherData> {
   return data
 }
 
+function fetchWeather(city: string) { return fetchWeatherWithDays(city, 5) }
+
+export type DayWeatherMap = Record<string, { min: number; max: number; code: number }>
+
 export function useWeather(city: string | null) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -64,4 +68,29 @@ export function useWeather(city: string | null) {
   }, [city])
 
   return { weather, loading, error }
+}
+
+export function useTripWeather(days: { date: string; city: string }[]): DayWeatherMap {
+  const [map, setMap] = useState<DayWeatherMap>({})
+  const cityKey = [...new Set(days.map(d => d.city))].sort().join('|')
+
+  useEffect(() => {
+    if (!cityKey) return
+    const cities = cityKey.split('|')
+    cities.forEach(city => {
+      fetchWeatherWithDays(city, 16)
+        .then(data => {
+          setMap(prev => {
+            const next = { ...prev }
+            data.daily.forEach(d => {
+              next[`${city}:${d.date}`] = { min: d.minTemp, max: d.maxTemp, code: d.weatherCode }
+            })
+            return next
+          })
+        })
+        .catch(() => {})
+    })
+  }, [cityKey])
+
+  return map
 }

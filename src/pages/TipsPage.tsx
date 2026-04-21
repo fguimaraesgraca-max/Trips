@@ -6,6 +6,7 @@ import { TipCategory, TipSource } from '../types'
 
 const CATEGORY_META: Record<TipCategory, { label: string; emoji: string }> = {
   food: { label: 'Gastronomia', emoji: '🍽️' },
+  restaurant: { label: 'Restaurantes', emoji: '🍴' },
   transport: { label: 'Transporte', emoji: '🚌' },
   culture: { label: 'Cultura', emoji: '🏛️' },
   safety: { label: 'Segurança', emoji: '🛡️' },

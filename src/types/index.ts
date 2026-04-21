@@ -7,7 +7,7 @@ export type ActivityType =
   | 'shopping'
   | 'other'
 
-export type TipCategory = 'food' | 'transport' | 'culture' | 'safety' | 'general' | 'budget'
+export type TipCategory = 'food' | 'transport' | 'culture' | 'safety' | 'general' | 'budget' | 'restaurant'
 
 export type TipSource = 'TripAdvisor' | 'Google' | 'Booking' | 'Viajante'
 

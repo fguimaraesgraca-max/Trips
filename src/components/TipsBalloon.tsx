@@ -5,6 +5,7 @@ import { getTipsForCity } from '../data/tips'
 
 const CATEGORY_LABELS: Record<TipCategory, string> = {
   food: '🍽️ Gastronomia',
+  restaurant: '🍴 Restaurantes',
   transport: '🚌 Transporte',
   culture: '🏛️ Cultura',
   safety: '🛡️ Segurança',

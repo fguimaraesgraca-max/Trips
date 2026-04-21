@@ -5,6 +5,8 @@ import { ptBR } from 'date-fns/locale'
 import { Trip, Activity, Day } from '../types'
 import ActivityItem from '../components/ActivityItem'
 import EditActivityModal from '../components/EditActivityModal'
+import { useTripWeather, DayWeatherMap } from '../hooks/useWeather'
+import { getWeatherEmoji } from '../utils/weather'
 
 interface Props {
   trip: Trip
@@ -16,6 +18,7 @@ interface Props {
   onAddDay: (date: string, city: string, country: string) => void
   newActivity: (dayId: string) => Activity
   onUpdateTitle: (title: string) => void
+  weatherMap?: DayWeatherMap
 }
 
 function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: string) => void; onClose: () => void }) {
@@ -86,6 +89,7 @@ function DayCard({
   onDelete,
   onDeleteDay,
   newActivity,
+  weather,
 }: {
   day: Day
   todayDate: string
@@ -94,6 +98,7 @@ function DayCard({
   onDelete: (actId: string) => void
   onDeleteDay: () => void
   newActivity: () => Activity
+  weather?: { min: number; max: number; code: number }
 }) {
   const isToday = day.date === todayDate
   const isPast = day.date < todayDate
@@ -119,10 +124,19 @@ function DayCard({
               {format(parseISO(day.date), "EEEE, d 'de' MMMM", { locale: ptBR })}
             </p>
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {day.city}, {day.country}
-            {total > 0 && ` · ${done}/${total}`}
-          </p>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-xs text-gray-500">
+              {day.city}, {day.country}
+              {total > 0 && ` · ${done}/${total}`}
+            </p>
+            {weather && (
+              <span className="text-xs text-gray-500 flex items-center gap-0.5">
+                {getWeatherEmoji(weather.code)}
+                <span className="font-medium text-gray-700">{weather.max}°</span>
+                <span className="text-gray-400">/ {weather.min}°</span>
+              </span>
+            )}
+          </div>
           {total > 0 && (
             <div className="h-1 bg-gray-100 rounded-full mt-2 overflow-hidden w-32">
               <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${(done / total) * 100}%` }} />
@@ -196,6 +210,7 @@ export default function ItineraryPage({
   onUpdateTitle,
 }: Props) {
   const [addingDay, setAddingDay] = useState(false)
+  const weatherMap = useTripWeather(trip.days)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(trip.title)
 
@@ -235,6 +250,7 @@ export default function ItineraryPage({
           onDelete={actId => onDelete(day.id, actId)}
           onDeleteDay={() => onDeleteDay(day.id)}
           newActivity={() => newActivity(day.id)}
+          weather={weatherMap[`${day.city}:${day.date}`]}
         />
       ))}
 
