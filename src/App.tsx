@@ -1,5 +1,5 @@
 import { useState, Component, ReactNode } from 'react'
-import { X, Plus, Check, ChevronRight, Map } from 'lucide-react'
+import { X, Plus, Check, Map, Pencil, Trash2 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -241,6 +241,85 @@ function CreateTripModal({
   )
 }
 
+// ─── Edit Trip Modal ──────────────────────────────────────────────────────────
+function EditTripModal({
+  trip,
+  canDelete,
+  onClose,
+  onUpdate,
+  onDelete,
+}: {
+  trip: Trip
+  canDelete: boolean
+  onClose: () => void
+  onUpdate: (id: string, title: string) => void
+  onDelete: (id: string) => void
+}) {
+  const [title, setTitle] = useState(trip.title)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  function handleSave() {
+    if (!title.trim()) return
+    onUpdate(trip.id, title.trim())
+    onClose()
+  }
+
+  function handleDelete() {
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    onDelete(trip.id)
+    onClose()
+  }
+
+  const inputCls =
+    'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+  const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
+
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-t-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">Editar viagem</h2>
+          <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
+        </div>
+        <div className="px-5 py-5 space-y-4">
+          <div>
+            <label className={labelCls}>Nome da viagem *</label>
+            <input
+              value={title}
+              onChange={e => { setTitle(e.target.value); setConfirmDelete(false) }}
+              placeholder="Nome da viagem"
+              className={inputCls}
+            />
+          </div>
+        </div>
+        <div className="px-5 pb-6 pt-2 space-y-3">
+          <button
+            onClick={handleSave}
+            disabled={!title.trim()}
+            className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+          >
+            Salvar
+          </button>
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              className={`w-full py-3.5 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-colors ${
+                confirmDelete
+                  ? 'bg-red-600 text-white'
+                  : 'bg-red-50 text-red-600'
+              }`}
+            >
+              <Trash2 size={18} />
+              {confirmDelete ? 'Confirmar exclusão' : 'Excluir viagem'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Trip Menu (full-screen) ──────────────────────────────────────────────────
 function TripMenu({
   trips,
@@ -248,14 +327,19 @@ function TripMenu({
   onChange,
   onClose,
   onCreateTrip,
+  onUpdateTrip,
+  onDeleteTrip,
 }: {
   trips: Trip[]
   activeId: string
   onChange: (id: string) => void
   onClose: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
+  onUpdateTrip: (id: string, title: string) => void
+  onDeleteTrip: (id: string) => void
 }) {
   const [creating, setCreating] = useState(false)
+  const [editingTrip, setEditingTrip] = useState<Trip | null>(null)
 
   return (
     <>
@@ -282,13 +366,14 @@ function TripMenu({
             const isActive = t.id === activeId
             const pending = t.pendingItems.filter(p => p.status === 'pendente').length
             return (
-              <button
+              <div
                 key={t.id}
-                onClick={() => { onChange(t.id); onClose() }}
-                className="w-full text-left rounded-3xl overflow-hidden shadow-md active:scale-[0.98] transition-transform"
+                className="w-full rounded-3xl overflow-hidden shadow-md"
               >
-                <div
-                  className="px-5 pt-5 pb-4 flex items-start justify-between"
+                {/* Gradient top — tap to activate */}
+                <button
+                  onClick={() => { onChange(t.id); onClose() }}
+                  className="w-full text-left px-5 pt-5 pb-4 flex items-start justify-between active:opacity-80 transition-opacity"
                   style={{ background: tripGradient(t) }}
                 >
                   <div className="flex-1 min-w-0">
@@ -305,14 +390,22 @@ function TripMenu({
                       <Check size={16} className="text-white" strokeWidth={3} />
                     </div>
                   )}
-                </div>
+                </button>
+
+                {/* White footer — status + edit button */}
                 <div className="bg-white px-5 py-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
                     {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
                   </span>
-                  <ChevronRight size={16} className="text-gray-300" />
+                  <button
+                    onClick={e => { e.stopPropagation(); setEditingTrip(t) }}
+                    className="flex items-center gap-1.5 text-gray-500 hover:text-indigo-600 active:scale-90 transition-transform px-2 py-1"
+                  >
+                    <Pencil size={14} />
+                    <span className="text-xs font-semibold">Editar</span>
+                  </button>
                 </div>
-              </button>
+              </div>
             )
           })}
 
@@ -337,6 +430,16 @@ function TripMenu({
             onCreateTrip(title, city, country, date)
             onClose()
           }}
+        />
+      )}
+
+      {editingTrip && (
+        <EditTripModal
+          trip={editingTrip}
+          canDelete={trips.length > 1}
+          onClose={() => setEditingTrip(null)}
+          onUpdate={(id, title) => { onUpdateTrip(id, title); setEditingTrip(null) }}
+          onDelete={(id) => { onDeleteTrip(id); setEditingTrip(null) }}
         />
       )}
     </>
@@ -368,6 +471,8 @@ export default function App() {
     deletePendingItem,
     newPendingItem,
     createTrip,
+    updateTripMeta,
+    deleteTrip,
   } = useTrip()
 
   const today = todayISO()
@@ -393,6 +498,8 @@ export default function App() {
           onChange={setActiveTrip}
           onClose={() => setShowTripMenu(false)}
           onCreateTrip={createTrip}
+          onUpdateTrip={updateTripMeta}
+          onDeleteTrip={deleteTrip}
         />
       )}
 

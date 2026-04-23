@@ -161,6 +161,24 @@ export function useTrip() {
     setState(s => ({ trips: [...s.trips, newTrip], activeTripId: id }))
   }, [])
 
+  const updateTripMeta = useCallback((id: string, title: string) => {
+    setState(s => ({
+      ...s,
+      trips: s.trips.map(t => t.id === id ? { ...t, title } : t),
+    }))
+  }, [])
+
+  const deleteTrip = useCallback((id: string) => {
+    setState(s => {
+      const remaining = s.trips.filter(t => t.id !== id)
+      if (!remaining.length) return s
+      return {
+        trips: remaining,
+        activeTripId: s.activeTripId === id ? remaining[0].id : s.activeTripId,
+      }
+    })
+  }, [])
+
   return {
     trips: state.trips,
     activeTripId: state.activeTripId,
@@ -178,5 +196,7 @@ export function useTrip() {
     deletePendingItem,
     newPendingItem,
     createTrip,
+    updateTripMeta,
+    deleteTrip,
   }
 }
