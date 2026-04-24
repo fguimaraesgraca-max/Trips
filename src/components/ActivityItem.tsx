@@ -68,8 +68,17 @@ export default function ActivityItem({ activity, onToggle, onEdit }: Props) {
           <p className="text-xs text-gray-400 mt-0.5 truncate">📍 {activity.location}</p>
         )}
         {activity.notes && !activity.done && (
-          <p className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-1.5">
-            💡 {activity.notes}
+          <p className={`text-xs rounded px-2 py-1 mt-1.5 ${
+            activity.type === 'flight'
+              ? 'text-sky-800 bg-sky-50'
+              : activity.type === 'hotel'
+              ? 'text-purple-800 bg-purple-50'
+              : activity.type === 'transport'
+              ? 'text-gray-700 bg-gray-100'
+              : 'text-amber-700 bg-amber-50'
+          }`}>
+            {activity.type === 'flight' ? '✈️' : activity.type === 'hotel' ? '🏨' : activity.type === 'transport' ? '🚌' : '💡'}{' '}
+            {activity.notes}
           </p>
         )}
       </div>

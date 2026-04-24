@@ -9,7 +9,8 @@ import ItineraryPage from './pages/ItineraryPage'
 import TipsPage from './pages/TipsPage'
 import PendenciasPage from './pages/PendenciasPage'
 import WelcomePage from './pages/WelcomePage'
-import { Trip } from './types'
+import { Trip, Day } from './types'
+import { parseItineraryText } from './utils/parseItinerary'
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -178,62 +179,139 @@ function TripSwitcherFab({ trip, onClick }: { trip: Trip; onClick: () => void })
 function CreateTripModal({
   onClose,
   onCreate,
+  onCreateWithDays,
 }: {
   onClose: () => void
   onCreate: (title: string, city: string, country: string, date: string) => void
+  onCreateWithDays: (title: string, days: Day[]) => void
 }) {
+  const [mode, setMode] = useState<'manual' | 'text'>('manual')
   const [title, setTitle] = useState('')
   const [city, setCity] = useState('')
   const [country, setCountry] = useState('Brasil')
   const [date, setDate] = useState(todayISO())
+  const [rawText, setRawText] = useState('')
+  const [parsed, setParsed] = useState<{ days: number; acts: number } | null>(null)
 
-  function handle() {
-    if (!title.trim() || !city.trim() || !date) return
-    onCreate(title.trim(), city.trim(), country.trim() || 'Brasil', date)
-    onClose()
+  function handleParse() {
+    const days = parseItineraryText(rawText)
+    if (days.length > 0) {
+      setParsed({ days: days.length, acts: days.reduce((s, d) => s + d.activities.length, 0) })
+    }
   }
 
-  const inputCls =
-    'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+  function handle() {
+    if (mode === 'text') {
+      if (!title.trim() || !parsed) return
+      onCreateWithDays(title.trim(), parseItineraryText(rawText))
+      onClose()
+    } else {
+      if (!title.trim() || !city.trim() || !date) return
+      onCreate(title.trim(), city.trim(), country.trim() || 'Brasil', date)
+      onClose()
+    }
+  }
+
+  const inputCls = 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-t-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+      <div className="relative bg-white rounded-t-3xl max-h-[92vh] flex flex-col" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100 flex-shrink-0">
           <h2 className="text-lg font-bold text-gray-900">Nova viagem</h2>
           <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
         </div>
-        <div className="px-5 py-5 space-y-4">
+
+        {/* Tab toggle */}
+        <div className="px-5 pt-4 flex-shrink-0">
+          <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+            <button
+              onClick={() => setMode('manual')}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'manual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+            >
+              ✏️ Campos manuais
+            </button>
+            <button
+              onClick={() => setMode('text')}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'text' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+            >
+              📋 Colar roteiro
+            </button>
+          </div>
+        </div>
+
+        <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
+          {/* Trip name always visible */}
           <div>
             <label className={labelCls}>Nome da viagem *</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
               placeholder="ex: Europa Inverno 2027" className={inputCls} />
           </div>
-          <div>
-            <label className={labelCls}>Primeira cidade *</label>
-            <input value={city} onChange={e => setCity(e.target.value)}
-              placeholder="ex: Barcelona" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>País</label>
-            <input value={country} onChange={e => setCountry(e.target.value)}
-              placeholder="ex: Espanha" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Data de partida *</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)}
-              className={inputCls} />
-          </div>
+
+          {mode === 'manual' ? (
+            <>
+              <div>
+                <label className={labelCls}>Primeira cidade *</label>
+                <input value={city} onChange={e => setCity(e.target.value)}
+                  placeholder="ex: Barcelona" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>País</label>
+                <input value={country} onChange={e => setCountry(e.target.value)}
+                  placeholder="ex: Espanha" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Data de partida *</label>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                  className={inputCls} />
+              </div>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className={labelCls}>Cole seu roteiro aqui</label>
+                <p className="text-xs text-gray-400 mt-0.5 mb-1.5">
+                  Inclua datas, horários, voos, hotéis, cidades e atividades. O app detecta e organiza automaticamente.
+                </p>
+                <textarea
+                  value={rawText}
+                  onChange={e => { setRawText(e.target.value); setParsed(null) }}
+                  placeholder={
+                    '14/05 - São Paulo\n18h Voo GRU → AMS LATAM\n\n15/05 - Amsterdam\n11:00 Chegada Schiphol\n15:00 Check-in hotel\n18h Passeio Jordaan\n\n20/05 - Bruges\n15:00 Hotel Biskajer - Check-in'
+                  }
+                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none font-mono"
+                  rows={10}
+                />
+              </div>
+              <button
+                onClick={handleParse}
+                disabled={rawText.trim().length < 10}
+                className="w-full border-2 border-indigo-500 text-indigo-600 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 active:bg-indigo-50"
+              >
+                🔍 Organizar roteiro
+              </button>
+              {parsed && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                  <span className="text-2xl">✅</span>
+                  <div>
+                    <p className="text-emerald-800 text-sm font-bold">Roteiro organizado!</p>
+                    <p className="text-emerald-600 text-xs mt-0.5">{parsed.days} dias · {parsed.acts} atividades detectadas</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div className="px-5 pb-6 pt-2">
+
+        <div className="px-5 pb-6 pt-3 flex-shrink-0 border-t border-gray-100">
           <button
             onClick={handle}
-            disabled={!title.trim() || !city.trim() || !date}
+            disabled={mode === 'manual' ? (!title.trim() || !city.trim() || !date) : (!title.trim() || !parsed)}
             className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
           >
-            Criar viagem
+            {mode === 'text' ? '🗺️ Criar viagem com roteiro' : 'Criar viagem'}
           </button>
         </div>
       </div>
@@ -327,6 +405,7 @@ function TripMenu({
   onChange,
   onClose,
   onCreateTrip,
+  onCreateTripWithDays,
   onUpdateTrip,
   onDeleteTrip,
 }: {
@@ -335,6 +414,7 @@ function TripMenu({
   onChange: (id: string) => void
   onClose: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
+  onCreateTripWithDays: (title: string, days: Day[]) => void
   onUpdateTrip: (id: string, title: string) => void
   onDeleteTrip: (id: string) => void
 }) {
@@ -430,6 +510,10 @@ function TripMenu({
             onCreateTrip(title, city, country, date)
             onClose()
           }}
+          onCreateWithDays={(title, days) => {
+            onCreateTripWithDays(title, days)
+            onClose()
+          }}
         />
       )}
 
@@ -471,6 +555,7 @@ export default function App() {
     deletePendingItem,
     newPendingItem,
     createTrip,
+    createTripWithDays,
     updateTripMeta,
     deleteTrip,
   } = useTrip()
@@ -498,6 +583,7 @@ export default function App() {
           onChange={setActiveTrip}
           onClose={() => setShowTripMenu(false)}
           onCreateTrip={createTrip}
+          onCreateTripWithDays={createTripWithDays}
           onUpdateTrip={updateTripMeta}
           onDeleteTrip={deleteTrip}
         />

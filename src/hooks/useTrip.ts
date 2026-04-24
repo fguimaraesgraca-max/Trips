@@ -144,6 +144,11 @@ export function useTrip() {
     notes: '',
   }), [])
 
+  const createTripWithDays = useCallback((title: string, days: Day[]) => {
+    const id = nanoid()
+    setState(s => ({ trips: [...s.trips, { id, title, pendingItems: [], days }], activeTripId: id }))
+  }, [])
+
   const createTrip = useCallback((title: string, firstCity: string, country: string, startDate: string) => {
     const id = nanoid()
     const newTrip: Trip = {
@@ -196,6 +201,7 @@ export function useTrip() {
     deletePendingItem,
     newPendingItem,
     createTrip,
+    createTripWithDays,
     updateTripMeta,
     deleteTrip,
   }
