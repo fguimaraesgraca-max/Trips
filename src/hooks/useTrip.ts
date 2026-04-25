@@ -166,10 +166,10 @@ export function useTrip() {
     setState(s => ({ trips: [...s.trips, newTrip], activeTripId: id }))
   }, [])
 
-  const updateTripMeta = useCallback((id: string, title: string) => {
+  const updateTripMeta = useCallback((id: string, title: string, color?: string) => {
     setState(s => ({
       ...s,
-      trips: s.trips.map(t => t.id === id ? { ...t, title } : t),
+      trips: s.trips.map(t => t.id === id ? { ...t, title, ...(color !== undefined && { color }) } : t),
     }))
   }, [])
 

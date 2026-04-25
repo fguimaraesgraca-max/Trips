@@ -21,7 +21,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
     if (this.state.error) {
       const err = this.state.error as Error
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#FAF6ED' }}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#F4F4F4' }}>
           <p className="text-4xl mb-4">⚠️</p>
           <p className="text-gray-900 font-semibold mb-2">Algo deu errado</p>
           <p className="text-gray-500 text-sm mb-6 max-w-xs">{err.message}</p>
@@ -41,7 +41,17 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function todayISO() { return new Date().toISOString().slice(0, 10) }
 
+function hexDarken(hex: string, amount = 40): string {
+  const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount)
+  const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - amount)
+  const b = Math.max(0, parseInt(hex.slice(5, 7), 16) - amount)
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`
+}
+
 function tripGradient(trip: Trip): string {
+  if (trip.color) {
+    return `linear-gradient(135deg,${trip.color},${hexDarken(trip.color)})`
+  }
   const t = trip.title.toLowerCase()
   if (t.includes('lençóis') || t.includes('maranhão') || t.includes('maranhenses'))
     return 'linear-gradient(135deg,#1BB8A9,#0D9488)'
@@ -55,6 +65,12 @@ function tripGradient(trip: Trip): string {
     return 'linear-gradient(135deg,#E67E22,#CA6F1E)'
   return 'linear-gradient(135deg,#7F8C8D,#566573)'
 }
+
+const COLOR_PRESETS = [
+  '#1BB8A9', '#2980B9', '#4F46E5', '#8E44AD',
+  '#E91E8C', '#E74C3C', '#E67E22', '#D4AC0D',
+  '#27AE60', '#0D6B31', '#7F8C8D', '#2C3E50',
+]
 
 function tripDateRange(trip: Trip): string {
   if (!trip.days.length) return 'Sem datas'
@@ -344,15 +360,16 @@ function EditTripModal({
   trip: Trip
   canDelete: boolean
   onClose: () => void
-  onUpdate: (id: string, title: string) => void
+  onUpdate: (id: string, title: string, color?: string) => void
   onDelete: (id: string) => void
 }) {
   const [title, setTitle] = useState(trip.title)
+  const [color, setColor] = useState<string | undefined>(trip.color)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   function handleSave() {
     if (!title.trim()) return
-    onUpdate(trip.id, title.trim())
+    onUpdate(trip.id, title.trim(), color)
     onClose()
   }
 
@@ -366,6 +383,10 @@ function EditTripModal({
     'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
 
+  const previewGradient = color
+    ? `linear-gradient(135deg,${color},${hexDarken(color)})`
+    : tripGradient(trip)
+
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -374,7 +395,7 @@ function EditTripModal({
           <h2 className="text-lg font-bold text-gray-900">Editar viagem</h2>
           <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
         </div>
-        <div className="px-5 py-5 space-y-4">
+        <div className="px-5 py-5 space-y-5">
           <div>
             <label className={labelCls}>Nome da viagem *</label>
             <input
@@ -383,6 +404,53 @@ function EditTripModal({
               placeholder="Nome da viagem"
               className={inputCls}
             />
+          </div>
+
+          {/* Color picker */}
+          <div>
+            <label className={labelCls}>Cor do banner</label>
+            {/* Preview strip */}
+            <div
+              className="mt-2 w-full h-10 rounded-xl mb-3"
+              style={{ background: previewGradient }}
+            />
+            {/* Preset swatches */}
+            <div className="grid grid-cols-6 gap-2">
+              {COLOR_PRESETS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className="w-full aspect-square rounded-full transition-transform active:scale-90 relative"
+                  style={{ background: c }}
+                >
+                  {(color ?? '').toLowerCase() === c.toLowerCase() && (
+                    <Check
+                      size={14}
+                      strokeWidth={3}
+                      className="absolute inset-0 m-auto text-white drop-shadow"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+            {/* Custom color input */}
+            <div className="mt-3 flex items-center gap-3">
+              <label className="text-xs text-gray-500 shrink-0">Personalizar:</label>
+              <input
+                type="color"
+                value={color ?? '#7F8C8D'}
+                onChange={e => setColor(e.target.value)}
+                className="w-10 h-8 rounded-lg border border-gray-200 cursor-pointer p-0.5 bg-white"
+              />
+              {color && (
+                <button
+                  onClick={() => setColor(undefined)}
+                  className="text-xs text-gray-400 underline"
+                >
+                  Usar padrão
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="px-5 pb-6 pt-2 space-y-3">
@@ -429,7 +497,7 @@ function TripMenu({
   onClose: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
   onCreateTripWithDays: (title: string, days: Day[], pendingItems: PendingItem[]) => void
-  onUpdateTrip: (id: string, title: string) => void
+  onUpdateTrip: (id: string, title: string, color?: string) => void
   onDeleteTrip: (id: string) => void
 }) {
   const [creating, setCreating] = useState(false)
@@ -437,7 +505,7 @@ function TripMenu({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#FAF6ED' }}>
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#F4F4F4' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-gray-100">
           <div>
@@ -536,7 +604,7 @@ function TripMenu({
           trip={editingTrip}
           canDelete={trips.length > 1}
           onClose={() => setEditingTrip(null)}
-          onUpdate={(id, title) => { onUpdateTrip(id, title); setEditingTrip(null) }}
+          onUpdate={(id, title, color) => { onUpdateTrip(id, title, color); setEditingTrip(null) }}
           onDelete={(id) => { onDeleteTrip(id); setEditingTrip(null) }}
         />
       )}
@@ -603,7 +671,7 @@ export default function App() {
         />
       )}
 
-      <div className="min-h-screen pb-20" style={{ background: '#FAF6ED' }}>
+      <div className="min-h-screen pb-20" style={{ background: '#F4F4F4' }}>
         <div className="max-w-lg mx-auto">
           {/* Decorative stamp banner */}
           <TripBanner />

@@ -47,6 +47,7 @@ export interface PendingItem {
 export interface Trip {
   id: string
   title: string
+  color?: string   // hex banner color, e.g. "#1BB8A9"
   days: Day[]
   pendingItems: PendingItem[]
 }
