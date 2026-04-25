@@ -144,9 +144,9 @@ export function useTrip() {
     notes: '',
   }), [])
 
-  const createTripWithDays = useCallback((title: string, days: Day[]) => {
+  const createTripWithDays = useCallback((title: string, days: Day[], pendingItems: PendingItem[] = []) => {
     const id = nanoid()
-    setState(s => ({ trips: [...s.trips, { id, title, pendingItems: [], days }], activeTripId: id }))
+    setState(s => ({ trips: [...s.trips, { id, title, pendingItems, days }], activeTripId: id }))
   }, [])
 
   const createTrip = useCallback((title: string, firstCity: string, country: string, startDate: string) => {

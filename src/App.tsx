@@ -10,7 +10,8 @@ import TipsPage from './pages/TipsPage'
 import PendenciasPage from './pages/PendenciasPage'
 import WelcomePage from './pages/WelcomePage'
 import { Trip, Day } from './types'
-import { parseItineraryText, debugParseItinerary, ParseDebug } from './utils/parseItinerary'
+import { parseItineraryFull, debugParseItinerary, ParseDebug } from './utils/parseItinerary'
+import { PendingItem } from './types'
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -163,7 +164,7 @@ function CreateTripModal({
 }: {
   onClose: () => void
   onCreate: (title: string, city: string, country: string, date: string) => void
-  onCreateWithDays: (title: string, days: Day[]) => void
+  onCreateWithDays: (title: string, days: Day[], pendingItems: PendingItem[]) => void
 }) {
   const [mode, setMode] = useState<'manual' | 'text'>('manual')
   const [title, setTitle] = useState('')
@@ -171,7 +172,7 @@ function CreateTripModal({
   const [country, setCountry] = useState('Brasil')
   const [date, setDate] = useState(todayISO())
   const [rawText, setRawText] = useState('')
-  const [parsed, setParsed] = useState<{ days: number; acts: number } | null>(null)
+  const [parsed, setParsed] = useState<{ days: number; acts: number; pending: number } | null>(null)
   const [debugInfo, setDebugInfo] = useState<ParseDebug | null>(null)
 
   function handleParse() {
@@ -179,16 +180,21 @@ function CreateTripModal({
     setDebugInfo(null)
     const dbg = debugParseItinerary(rawText)
     setDebugInfo(dbg)
-    const days = parseItineraryText(rawText)
-    if (days.length > 0) {
-      setParsed({ days: days.length, acts: days.reduce((s, d) => s + d.activities.length, 0) })
+    const result = parseItineraryFull(rawText)
+    if (result.days.length > 0) {
+      setParsed({
+        days: result.days.length,
+        acts: result.days.reduce((s, d) => s + d.activities.length, 0),
+        pending: result.pendingItems.length,
+      })
     }
   }
 
   function handle() {
     if (mode === 'text') {
       if (!title.trim() || !parsed) return
-      onCreateWithDays(title.trim(), parseItineraryText(rawText))
+      const result = parseItineraryFull(rawText)
+      onCreateWithDays(title.trim(), result.days, result.pendingItems)
       onClose()
     } else {
       if (!title.trim() || !city.trim() || !date) return
@@ -283,7 +289,8 @@ function CreateTripModal({
                   <div>
                     <p className="text-emerald-800 text-sm font-bold">Roteiro organizado!</p>
                     <p className="text-emerald-600 text-xs mt-0.5">
-                      {parsed.days} dias · {parsed.acts} atividades · {debugInfo.totalLines} linhas lidas
+                      {parsed.days} dias · {parsed.acts} atividades
+                      {parsed.pending > 0 && ` · ${parsed.pending} pendência${parsed.pending !== 1 ? 's' : ''}`}
                     </p>
                   </div>
                 </div>
@@ -421,7 +428,7 @@ function TripMenu({
   onChange: (id: string) => void
   onClose: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
-  onCreateTripWithDays: (title: string, days: Day[]) => void
+  onCreateTripWithDays: (title: string, days: Day[], pendingItems: PendingItem[]) => void
   onUpdateTrip: (id: string, title: string) => void
   onDeleteTrip: (id: string) => void
 }) {
@@ -517,8 +524,8 @@ function TripMenu({
             onCreateTrip(title, city, country, date)
             onClose()
           }}
-          onCreateWithDays={(title, days) => {
-            onCreateTripWithDays(title, days)
+          onCreateWithDays={(title, days, pendingItems) => {
+            onCreateTripWithDays(title, days, pendingItems)
             onClose()
           }}
         />

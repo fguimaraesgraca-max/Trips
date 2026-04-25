@@ -1,4 +1,4 @@
-import { Activity, ActivityType, Day } from '../types'
+import { Activity, ActivityType, Day, PendingItem, PendingPriority } from '../types'
 
 function uid() { return Math.random().toString(36).slice(2, 9) }
 
@@ -224,6 +224,96 @@ export function parseItineraryText(rawText: string, year = 2026): Day[] {
 
   flush()
   return days
+}
+
+// ─── Pending items extraction ─────────────────────────────────────────────────
+
+function pendingPriority(text: string): PendingPriority {
+  const l = text.toLowerCase()
+  if (/passagem|voo\b|flight|visto\b|seguro\s+viagem|transfer\b|táxi.*aero|taxi.*aero|crítico/i.test(l)) return 'critico'
+  if (/hotel|hostel|pousada|reservar|alugar|carro\b|museu|anne frank|plitvice|restaurante|importante/i.test(l)) return 'importante'
+  return 'normal'
+}
+
+function extractDateNeeded(text: string): string {
+  // Trailing (28/Mai) or (22/05)
+  const paren = text.match(/\(([^)]{2,20})\)\s*$/)
+  if (paren) return paren[1]
+  // "para DD/MM" or "até DD/MM" at end
+  const prep = text.match(/(?:para|até|by)\s+(\d{1,2}[\/\-](?:\d{1,2}|\w+))\s*$/i)
+  if (prep) return prep[1]
+  return ''
+}
+
+function parsePendingBlock(blockText: string): PendingItem[] {
+  const items: PendingItem[] = []
+  for (const line of blockText.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed) continue
+    // Accept numbered items ("1.", "1)") or bullet items ("-", "•", "*")
+    if (!/^(?:\d+[\.\)]|[-•*])\s+/.test(trimmed)) continue
+    const raw = trimmed.replace(/^(?:\d+[\.\)]|[-•*])\s+/, '').trim()
+    if (!raw) continue
+    const dateNeeded = extractDateNeeded(raw)
+    const title = dateNeeded
+      ? raw.replace(/\s*\([^)]+\)\s*$/, '').replace(/\s+(?:para|até)\s+\d{1,2}[\/\-]\S+\s*$/i, '').trim()
+      : raw
+    items.push({
+      id: uid(),
+      title: title || raw,
+      dateNeeded,
+      howTo: '',
+      responsible: '',
+      status: 'pendente',
+      priority: pendingPriority(raw),
+      notes: '',
+    })
+  }
+  return items
+}
+
+export interface ParseResult {
+  days: Day[]
+  pendingItems: PendingItem[]
+}
+
+export function parseItineraryFull(rawText: string, year = 2026): ParseResult {
+  // Split on a PENDENCIAS / PENDÊNCIAS section header
+  const headerRe = /^[ \t]*PEND[EÊ]NCIAS?\b[^\n]*/im
+  const match = rawText.match(headerRe)
+
+  let itineraryText = rawText
+  let pendingBlock = ''
+
+  if (match && match.index !== undefined) {
+    itineraryText = rawText.slice(0, match.index)
+    pendingBlock = rawText.slice(match.index + match[0].length)
+  }
+
+  const days = parseItineraryText(itineraryText, year)
+
+  // Also collect "PENDENTE" / "A RESERVAR" activities from the day activities
+  const autoItems: PendingItem[] = []
+  for (const day of days) {
+    for (const act of day.activities) {
+      const combined = [act.title, act.description, act.notes].join(' ')
+      if (/\bpendente\b|a\s+reservar\b|a\s+comprar\b/i.test(combined)) {
+        autoItems.push({
+          id: uid(),
+          title: act.title,
+          dateNeeded: '',
+          howTo: '',
+          responsible: '',
+          status: 'pendente',
+          priority: pendingPriority(combined),
+          notes: `${day.city} · ${day.date}`,
+        })
+      }
+    }
+  }
+
+  const pendingItems = [...parsePendingBlock(pendingBlock), ...autoItems]
+  return { days, pendingItems }
 }
 
 export interface ParseDebug {
