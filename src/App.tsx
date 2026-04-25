@@ -21,7 +21,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
     if (this.state.error) {
       const err = this.state.error as Error
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#EEF2F5' }}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#1B4F72' }}>
           <p className="text-4xl mb-4">⚠️</p>
           <p className="text-gray-900 font-semibold mb-2">Algo deu errado</p>
           <p className="text-gray-500 text-sm mb-6 max-w-xs">{err.message}</p>
@@ -508,7 +508,7 @@ function TripMenu({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#EEF2F5' }}>
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#1B4F72' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-gray-100">
           <div>
@@ -674,7 +674,7 @@ export default function App() {
         />
       )}
 
-      <div className="min-h-screen pb-20" style={{ background: '#EEF2F5' }}>
+      <div className="min-h-screen pb-20" style={{ background: '#1B4F72' }}>
         <div className="max-w-lg mx-auto">
           {/* Decorative stamp banner */}
           <TripBanner />
