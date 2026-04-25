@@ -172,11 +172,16 @@ function CreateTripModal({
   const [date, setDate] = useState(todayISO())
   const [rawText, setRawText] = useState('')
   const [parsed, setParsed] = useState<{ days: number; acts: number } | null>(null)
+  const [parseError, setParseError] = useState(false)
 
   function handleParse() {
+    setParseError(false)
+    setParsed(null)
     const days = parseItineraryText(rawText)
     if (days.length > 0) {
       setParsed({ days: days.length, acts: days.reduce((s, d) => s + d.activities.length, 0) })
+    } else {
+      setParseError(true)
     }
   }
 
@@ -257,7 +262,7 @@ function CreateTripModal({
                 </p>
                 <textarea
                   value={rawText}
-                  onChange={e => { setRawText(e.target.value); setParsed(null) }}
+                  onChange={e => { setRawText(e.target.value); setParsed(null); setParseError(false) }}
                   placeholder={
                     '14/05 - São Paulo\n18h Voo GRU → AMS LATAM\n\n15/05 - Amsterdam\n11:00 Chegada Schiphol\n15:00 Check-in hotel\n18h Passeio Jordaan\n\n20/05 - Bruges\n15:00 Hotel Biskajer - Check-in'
                   }
@@ -279,6 +284,14 @@ function CreateTripModal({
                     <p className="text-emerald-800 text-sm font-bold">Roteiro organizado!</p>
                     <p className="text-emerald-600 text-xs mt-0.5">{parsed.days} dias · {parsed.acts} atividades detectadas</p>
                   </div>
+                </div>
+              )}
+              {parseError && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <p className="text-amber-800 text-sm font-bold">Nenhuma data detectada</p>
+                  <p className="text-amber-600 text-xs mt-1">
+                    Inclua cabeçalhos de data como <span className="font-mono font-bold">14/05</span>, <span className="font-mono font-bold">14/Mai</span> ou <span className="font-mono font-bold">14 de maio</span> antes de cada dia.
+                  </p>
                 </div>
               )}
             </div>

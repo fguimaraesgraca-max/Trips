@@ -51,13 +51,22 @@ function detectCity(line: string): [string, string] | null {
 function parseDate(line: string, year = 2026): string | null {
   const l = line.toLowerCase()
 
-  // DD/MM or DD/MM/YYYY
+  // DD/MM or DD/MM/YYYY (numeric months only)
   let m = l.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/)
   if (m) {
     const d = +m[1], mo = +m[2]
     const yr = m[3] ? (+m[3] < 100 ? 2000 + +m[3] : +m[3]) : year
     if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12) {
       return `${yr}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+    }
+  }
+
+  // DD/Mês or DD-Mês (e.g., 14/Mai, 28/maio, 22/jun)
+  m = l.match(/\b(\d{1,2})[\/\-]([a-zà-ÿ]{2,9})\b/)
+  if (m) {
+    const d = +m[1], mo = MONTHS[m[2]]
+    if (mo && d >= 1 && d <= 31) {
+      return `${year}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`
     }
   }
 
