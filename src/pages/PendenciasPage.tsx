@@ -384,16 +384,18 @@ interface Props {
 export default function PendenciasPage({ items, days = [], onToggle, onSave, onDelete, newItem }: Props) {
   const [editing, setEditing] = useState<{ item: PendingItem; isNew: boolean } | null>(null)
   const [importing, setImporting] = useState(false)
-  const [showBookings, setShowBookings] = useState(false)
 
   const pending = items.filter(i => i.status === 'pendente')
   const done = items.filter(i => i.status === 'feito')
   const priorityOrder: Record<PendingPriority, number> = { critico: 0, importante: 1, normal: 2 }
   const sorted = [...pending].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
-  const bookings = extractBookings(days)
 
   // Normalised set of existing titles for deduplication
   const existingTitles = new Set(items.map(i => i.title.trim().toLowerCase()))
+
+  // Only show bookings not yet in the pending list
+  const allBookings = extractBookings(days)
+  const unadded = allBookings.filter(b => !existingTitles.has(b.title.trim().toLowerCase()))
 
   function handleImport(newItems: PendingItem[]) {
     newItems
@@ -479,27 +481,17 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
         </div>
       )}
 
-      {/* Booking reminders — collapsible secondary section */}
-      {bookings.length > 0 && (
-        <div className="pt-2">
-          <button
-            onClick={() => setShowBookings(b => !b)}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-              Reservas no roteiro 🎫 <span className="normal-case font-normal">({bookings.length})</span>
-            </p>
-            {showBookings ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
-          </button>
-          {showBookings && (
-            <div className="mt-2 space-y-2">
-              {bookings.map((b, i) => (
-                <BookingReminderCard key={i} info={b}
-                  added={existingTitles.has(b.title.trim().toLowerCase())}
-                  onAddToPending={handleAddBookingToPending} />
-              ))}
-            </div>
-          )}
+      {/* Booking reminders — only unadded items */}
+      {unadded.length > 0 && (
+        <div className="pt-2 space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            Detectado no roteiro 🎫 <span className="normal-case font-normal">({unadded.length} para adicionar)</span>
+          </p>
+          {unadded.map((b, i) => (
+            <BookingReminderCard key={i} info={b}
+              added={false}
+              onAddToPending={handleAddBookingToPending} />
+          ))}
         </div>
       )}
 
