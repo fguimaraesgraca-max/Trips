@@ -13,6 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       base,
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
