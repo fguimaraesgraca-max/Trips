@@ -107,7 +107,7 @@ function cityGradient(city: string): string {
   if (c.includes('budapest'))       return 'linear-gradient(135deg,#8E44AD,#6C3483)'
   if (c.includes('zagreb') || c.includes('plitvice') || c.includes('split') || c.includes('dubrovnik') || c.includes('zadar') || c.includes('hvar') || c.includes('makarska')) return 'linear-gradient(135deg,#27AE60,#1E8449)'
   if (c.includes('lençóis') || c.includes('maranhão') || c.includes('barreirinhas') || c.includes('atins')) return 'linear-gradient(135deg,#1BB8A9,#0D9488)'
-  return 'linear-gradient(135deg,#7F8C8D,#566573)'
+  return 'linear-gradient(135deg,#1B4F72,#0E3252)'
 }
 
 interface Props { trip: Trip }
@@ -142,7 +142,7 @@ export default function TipsPage({ trip }: Props) {
               key={c}
               onClick={() => { setCity(c); setFilter('all') }}
               className={`flex-shrink-0 px-3 py-2 rounded-2xl text-xs font-semibold transition-colors ${
-                city === c ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-200'
+                city === c ? 'bg-[#1B4F72] text-white' : 'bg-white text-gray-700 border border-gray-200'
               }`}
             >
               {c}
@@ -201,7 +201,7 @@ export default function TipsPage({ trip }: Props) {
                     <ul className="space-y-1.5">
                       {block.items.map((item, j) => (
                         <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
-                          <span className="text-indigo-400 mt-0.5 flex-shrink-0">•</span>
+                          <span className="text-[#5B8FAA] mt-0.5 flex-shrink-0">•</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -244,7 +244,7 @@ export default function TipsPage({ trip }: Props) {
             {[
               { label: 'TripAdvisor', url: `https://www.tripadvisor.com/Search?q=${encodeURIComponent(city)}`, color: 'text-emerald-700', bg: 'bg-emerald-50' },
               { label: 'Google Travel', url: `https://www.google.com/travel/explore?q=${encodeURIComponent(city)}`, color: 'text-blue-700', bg: 'bg-blue-50' },
-              { label: 'Booking.com', url: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}`, color: 'text-blue-900', bg: 'bg-indigo-50' },
+              { label: 'Booking.com', url: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}`, color: 'text-blue-900', bg: 'bg-[#EAF2F8]' },
             ].map(link => (
               <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
                 className={`flex items-center justify-between px-4 py-3 ${link.bg} rounded-xl`}
@@ -308,7 +308,7 @@ export default function TipsPage({ trip }: Props) {
                     </div>
                   </div>
                   {tip.city && (
-                    <span className="inline-block mt-2 text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
+                    <span className="inline-block mt-2 text-xs bg-[#EAF2F8] text-[#1B4F72] px-2 py-0.5 rounded-full">
                       {tip.city}
                     </span>
                   )}

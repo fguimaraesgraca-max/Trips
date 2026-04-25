@@ -121,11 +121,11 @@ function ImportModal({ onImport, onClose }: { onImport: (items: PendingItem[]) =
             onChange={e => setText(e.target.value)}
             placeholder={'1. Comprar passagem ônibus Budapest → Zagreb (28/Mai)\n2. Reservar hotel em Bruxelas para 22/Mai\n3. Alugar carro em Zagreb\n- Seguro viagem'}
             rows={8}
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none font-mono"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none font-mono"
           />
           {preview.length > 0 && (
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2.5 space-y-1.5">
-              <p className="text-xs font-semibold text-indigo-700">{preview.length} item{preview.length !== 1 ? 's' : ''} detectado{preview.length !== 1 ? 's' : ''}:</p>
+            <div className="bg-[#EAF2F8] border border-[#C5DDE9] rounded-xl px-3 py-2.5 space-y-1.5">
+              <p className="text-xs font-semibold text-[#163F5C]">{preview.length} item{preview.length !== 1 ? 's' : ''} detectado{preview.length !== 1 ? 's' : ''}:</p>
               {preview.map((item, i) => {
                 const m = PRIORITY_META[item.priority]
                 return (
@@ -143,7 +143,7 @@ function ImportModal({ onImport, onClose }: { onImport: (items: PendingItem[]) =
           <button
             onClick={handleImport}
             disabled={preview.length === 0}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40"
+            className="w-full bg-[#1B4F72] text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-40"
           >
             Adicionar {preview.length > 0 ? `${preview.length} pendência${preview.length !== 1 ? 's' : ''}` : 'pendências'}
           </button>
@@ -223,13 +223,13 @@ function BookingReminderCard({
           className={`flex-shrink-0 mt-0.5 w-7 h-7 rounded-full border flex items-center justify-center transition-colors ${
             added
               ? 'bg-emerald-50 border-emerald-200 cursor-default'
-              : 'bg-white border-gray-200 active:bg-indigo-50'
+              : 'bg-white border-gray-200 active:bg-[#EAF2F8]'
           }`}
           title={added ? 'Já adicionado' : 'Adicionar à lista de pendências'}
         >
           {added
             ? <CheckCircle2 size={14} className="text-emerald-500" />
-            : <Plus size={14} className="text-indigo-600" />}
+            : <Plus size={14} className="text-[#1B4F72]" />}
         </button>
       </div>
     </div>
@@ -274,30 +274,30 @@ function EditPendingModal({
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Título *</label>
             <input value={form.title} onChange={e => set('title', e.target.value)}
               placeholder="ex: Comprar passagem ônibus Budapest → Zagreb"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Quando</label>
             <input value={form.dateNeeded} onChange={e => set('dateNeeded', e.target.value)}
               placeholder="ex: 28/Mai"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Responsável</label>
             <input value={form.responsible} onChange={e => set('responsible', e.target.value)}
               placeholder="ex: Patrícia"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Como resolver</label>
             <textarea value={form.howTo} onChange={e => set('howTo', e.target.value)}
               placeholder="ex: Booking.com ou ligar para o hotel" rows={2}
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Notas</label>
             <textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2}
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none" />
           </div>
         </div>
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-4 py-4 flex gap-3">
@@ -309,7 +309,7 @@ function EditPendingModal({
           )}
           <button onClick={() => { if (form.title.trim()) { onSave(form); onClose() } }}
             disabled={!form.title.trim()}
-            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50">
+            className="flex-1 bg-[#1B4F72] text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50">
             Salvar
           </button>
         </div>
@@ -361,7 +361,7 @@ function PendingCard({ item, onToggle, onEdit }: { item: PendingItem; onToggle: 
               <p className="text-xs text-gray-600">{item.notes}</p>
             </div>
           )}
-          <button onClick={onEdit} className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium mt-1">
+          <button onClick={onEdit} className="flex items-center gap-1.5 text-xs text-[#1B4F72] font-medium mt-1">
             <Pencil size={12} /> Editar
           </button>
         </div>
@@ -429,7 +429,7 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
           </button>
           <button
             onClick={() => setEditing({ item: newItem(), isNew: true })}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-2 rounded-xl text-sm font-medium"
+            className="flex items-center gap-1.5 bg-[#1B4F72] text-white px-3 py-2 rounded-xl text-sm font-medium"
           >
             <Plus size={15} /> Nova
           </button>

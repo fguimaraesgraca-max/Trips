@@ -72,7 +72,7 @@ export default function TipsBalloon({ city }: Props) {
             onClick={() => setFilter('all')}
             className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
               filter === 'all'
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-[#1B4F72] text-white'
                 : 'bg-gray-100 text-gray-600 active:bg-gray-200'
             }`}
           >
@@ -84,7 +84,7 @@ export default function TipsBalloon({ city }: Props) {
               onClick={() => setFilter(cat)}
               className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
                 filter === cat
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-[#1B4F72] text-white'
                   : 'bg-gray-100 text-gray-600 active:bg-gray-200'
               }`}
             >
@@ -115,7 +115,7 @@ export default function TipsBalloon({ city }: Props) {
               </p>
             </div>
             {tip.city && (
-              <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-[#EAF2F8] text-[#1B4F72] px-2 py-0.5 rounded-full">
                 {tip.city}
               </span>
             )}
@@ -127,7 +127,7 @@ export default function TipsBalloon({ city }: Props) {
           <button
             onClick={() => setIdx(i => (i - 1 + filtered.length) % filtered.length)}
             disabled={filtered.length <= 1}
-            className="p-2 text-gray-400 disabled:opacity-30 active:text-indigo-600"
+            className="p-2 text-gray-400 disabled:opacity-30 active:text-[#1B4F72]"
           >
             <ChevronLeft size={18} />
           </button>
@@ -139,7 +139,7 @@ export default function TipsBalloon({ city }: Props) {
                 key={i}
                 onClick={() => setIdx(i)}
                 className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  i === idx ? 'bg-indigo-600 w-4' : 'bg-gray-300'
+                  i === idx ? 'bg-[#1B4F72] w-4' : 'bg-gray-300'
                 }`}
               />
             ))}
@@ -148,7 +148,7 @@ export default function TipsBalloon({ city }: Props) {
           <button
             onClick={() => setIdx(i => (i + 1) % filtered.length)}
             disabled={filtered.length <= 1}
-            className="p-2 text-gray-400 disabled:opacity-30 active:text-indigo-600"
+            className="p-2 text-gray-400 disabled:opacity-30 active:text-[#1B4F72]"
           >
             <ChevronRight size={18} />
           </button>

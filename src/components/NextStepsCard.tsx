@@ -93,15 +93,15 @@ export default function NextStepsCard({ days, todayDate }: Props) {
           )}
         </div>
         <div className="flex flex-col items-end gap-2 ml-3">
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${isUrgent ? 'bg-amber-200 text-amber-800' : 'bg-indigo-50 text-indigo-600'}`}>
+          <span className={`text-xs font-bold px-2 py-1 rounded-full ${isUrgent ? 'bg-amber-200 text-amber-800' : 'bg-[#EAF2F8] text-[#1B4F72]'}`}>
             {diff}
           </span>
           <button
             onClick={requestNotifications}
-            className="p-1 text-gray-400 active:text-indigo-600"
+            className="p-1 text-gray-400 active:text-[#1B4F72]"
             title={notifGranted ? 'Notificações ativas' : 'Ativar lembretes'}
           >
-            {notifGranted ? <Bell size={16} className="text-indigo-500" /> : <BellOff size={16} />}
+            {notifGranted ? <Bell size={16} className="text-[#1B4F72]" /> : <BellOff size={16} />}
           </button>
         </div>
       </div>

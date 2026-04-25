@@ -12,13 +12,13 @@ function Root() {
       <App />
       {needRefresh && (
         <div
-          className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3 px-4 py-3 bg-indigo-600 text-white text-sm font-medium shadow-lg"
+          className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-3 px-4 py-3 bg-[#1B4F72] text-white text-sm font-medium shadow-lg"
           style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}
         >
           <span>🔄 Nova versão disponível</span>
           <button
             onClick={() => updateServiceWorker(true)}
-            className="bg-white text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
+            className="bg-white text-[#163F5C] text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
           >
             Atualizar
           </button>

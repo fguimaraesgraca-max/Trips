@@ -21,7 +21,7 @@ export default function WelcomePage({ onContinue }: Props) {
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-between overflow-hidden select-none"
-      style={{ background: 'linear-gradient(160deg, #1BB8A9 0%, #0D9488 45%, #0A6B60 100%)' }}
+      style={{ background: 'linear-gradient(160deg, #1B4F72 0%, #163F5C 50%, #0E2A40 100%)' }}
     >
       {/* Top arc decoration */}
       <div className="absolute top-0 left-0 right-0 opacity-10 pointer-events-none">
@@ -63,7 +63,7 @@ export default function WelcomePage({ onContinue }: Props) {
         <div style={fade(600)} className="mt-14">
           <button
             onClick={onContinue}
-            className="bg-white text-teal-700 font-bold text-lg px-14 py-4 rounded-2xl shadow-2xl active:scale-95"
+            className="bg-white text-[#1B4F72] font-bold text-lg px-14 py-4 rounded-2xl shadow-2xl active:scale-95"
             style={{ transition: 'transform 0.1s' }}
           >
             ✈️&nbsp; Começar

@@ -63,7 +63,7 @@ export default function ActivityItem({ activity, onToggle, onEdit }: Props) {
       <button
         onClick={onToggle}
         className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-          activity.done ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 active:border-indigo-400'
+          activity.done ? 'bg-[#1B4F72] border-[#1B4F72]' : 'border-gray-300 active:border-[#2A6B9A]'
         }`}
       >
         {activity.done && (
@@ -86,10 +86,10 @@ export default function ActivityItem({ activity, onToggle, onEdit }: Props) {
               {activity.title || 'Sem título'}
             </p>
             {activity.time && (
-              <span className="text-xs text-indigo-600 font-medium">{activity.time}</span>
+              <span className="text-xs text-[#1B4F72] font-medium">{activity.time}</span>
             )}
           </div>
-          <button onClick={onEdit} className="p-1.5 text-gray-400 active:text-indigo-600 flex-shrink-0 -mt-0.5">
+          <button onClick={onEdit} className="p-1.5 text-gray-400 active:text-[#1B4F72] flex-shrink-0 -mt-0.5">
             <Pencil size={14} />
           </button>
         </div>

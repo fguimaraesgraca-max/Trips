@@ -21,13 +21,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
     if (this.state.error) {
       const err = this.state.error as Error
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#F4F4F4' }}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: '#EEF2F5' }}>
           <p className="text-4xl mb-4">⚠️</p>
           <p className="text-gray-900 font-semibold mb-2">Algo deu errado</p>
           <p className="text-gray-500 text-sm mb-6 max-w-xs">{err.message}</p>
           <button
             onClick={() => { localStorage.removeItem('viaticum-v2'); window.location.reload() }}
-            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold"
+            className="bg-[#1B4F72] text-white px-5 py-2.5 rounded-xl text-sm font-semibold"
           >
             Reiniciar app
           </button>
@@ -63,13 +63,13 @@ function tripGradient(trip: Trip): string {
     return 'linear-gradient(135deg,#E74C3C,#922B21)'
   if (t.includes('tokyo') || t.includes('japão') || t.includes('japan'))
     return 'linear-gradient(135deg,#E67E22,#CA6F1E)'
-  return 'linear-gradient(135deg,#7F8C8D,#566573)'
+  return 'linear-gradient(135deg,#1B4F72,#0E3252)'
 }
 
 const COLOR_PRESETS = [
-  '#1BB8A9', '#2980B9', '#4F46E5', '#8E44AD',
-  '#E91E8C', '#E74C3C', '#E67E22', '#D4AC0D',
-  '#27AE60', '#0D6B31', '#7F8C8D', '#2C3E50',
+  '#1B4F72', '#0E3252', '#2A6B9A', '#8FA8B8',
+  '#8B7355', '#6B4226', '#2D6A4F', '#6B4C8A',
+  '#9B2335', '#C0392B', '#4A5568', '#1A252F',
 ]
 
 function tripDateRange(trip: Trip): string {
@@ -141,19 +141,19 @@ function Stamp({ uid, color, emoji, label, rotation = 0 }: {
 
 // ─── Trip Banner ──────────────────────────────────────────────────────────────
 const STAMPS = [
-  { color: '#27AE60', emoji: '🌊', label: 'Água',      rotation: -5 },
-  { color: '#E67E22', emoji: '✈️', label: 'Voo',       rotation:  3 },
-  { color: '#E74C3C', emoji: '❤️', label: 'Amor',      rotation: -3 },
-  { color: '#2980B9', emoji: '⭐', label: 'Estrelas',   rotation:  5 },
-  { color: '#D4AC0D', emoji: '🧳', label: 'Viagem',    rotation: -2 },
-  { color: '#8E44AD', emoji: '🌅', label: 'Memória',   rotation:  4 },
+  { color: '#1B4F72', emoji: '✈️', label: 'Voo',      rotation: -5 },
+  { color: '#8FA8B8', emoji: '🌊', label: 'Mar',       rotation:  3 },
+  { color: '#8B7355', emoji: '🧳', label: 'Viagem',    rotation: -3 },
+  { color: '#2D6A4F', emoji: '🌿', label: 'Natureza',  rotation:  5 },
+  { color: '#6B4226', emoji: '☕', label: 'Café',      rotation: -2 },
+  { color: '#4A5568', emoji: '🗺️', label: 'Mapa',     rotation:  4 },
 ]
 
 function TripBanner() {
   return (
     <div
       className="w-full px-4 pt-4 pb-3 flex items-center justify-between gap-3"
-      style={{ background: 'linear-gradient(135deg,#0D9488 0%,#0A6B60 100%)' }}
+      style={{ background: 'linear-gradient(135deg,#1B4F72 0%,#0E3252 100%)' }}
     >
       {/* Left: app identity */}
       <div className="flex-shrink-0">
@@ -219,7 +219,7 @@ function CreateTripModal({
     }
   }
 
-  const inputCls = 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+  const inputCls = 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
 
   return (
@@ -288,14 +288,14 @@ function CreateTripModal({
                   placeholder={
                     '14/05 - São Paulo\n18h Voo GRU → AMS LATAM\n\n15/05 - Amsterdam\n11:00 Chegada Schiphol\n15:00 Check-in hotel\n18h Passeio Jordaan\n\n20/05 - Bruges\n15:00 Hotel Biskajer - Check-in'
                   }
-                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white resize-none font-mono"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white resize-none font-mono"
                   rows={10}
                 />
               </div>
               <button
                 onClick={handleParse}
                 disabled={rawText.trim().length < 10}
-                className="w-full border-2 border-indigo-500 text-indigo-600 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 active:bg-indigo-50"
+                className="w-full border-2 border-[#1B4F72] text-[#1B4F72] py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 active:bg-[#EAF2F8]"
               >
                 🔍 Organizar roteiro
               </button>
@@ -339,7 +339,7 @@ function CreateTripModal({
           <button
             onClick={handle}
             disabled={mode === 'manual' ? (!title.trim() || !city.trim() || !date) : (!title.trim() || !parsed)}
-            className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+            className="w-full bg-[#1B4F72] text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
           >
             {mode === 'text' ? '🗺️ Criar viagem com roteiro' : 'Criar viagem'}
           </button>
@@ -380,7 +380,7 @@ function EditTripModal({
   }
 
   const inputCls =
-    'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white'
+    'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
 
   const previewGradient = color
@@ -457,7 +457,7 @@ function EditTripModal({
           <button
             onClick={handleSave}
             disabled={!title.trim()}
-            className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+            className="w-full bg-[#1B4F72] text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
           >
             Salvar
           </button>
@@ -505,7 +505,7 @@ function TripMenu({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#F4F4F4' }}>
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: '#EEF2F5' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-gray-100">
           <div>
@@ -556,12 +556,12 @@ function TripMenu({
 
                 {/* White footer — status + edit button */}
                 <div className="bg-white px-5 py-3 flex items-center justify-between">
-                  <span className={`text-xs font-semibold ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
+                  <span className={`text-xs font-semibold ${isActive ? 'text-[#1B4F72]' : 'text-gray-400'}`}>
                     {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); setEditingTrip(t) }}
-                    className="flex items-center gap-1.5 text-gray-500 hover:text-indigo-600 active:scale-90 transition-transform px-2 py-1"
+                    className="flex items-center gap-1.5 text-gray-500 hover:text-[#1B4F72] active:scale-90 transition-transform px-2 py-1"
                   >
                     <Pencil size={14} />
                     <span className="text-xs font-semibold">Editar</span>
@@ -574,7 +574,7 @@ function TripMenu({
           {/* Add trip */}
           <button
             onClick={() => setCreating(true)}
-            className="w-full border-2 border-dashed border-gray-300 rounded-3xl py-6 flex flex-col items-center gap-2 text-gray-400 active:border-indigo-400 active:text-indigo-500 transition-colors"
+            className="w-full border-2 border-dashed border-gray-300 rounded-3xl py-6 flex flex-col items-center gap-2 text-gray-400 active:border-[#2A6B9A] active:text-[#1B4F72] transition-colors"
           >
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
               <Plus size={22} />
@@ -671,7 +671,7 @@ export default function App() {
         />
       )}
 
-      <div className="min-h-screen pb-20" style={{ background: '#F4F4F4' }}>
+      <div className="min-h-screen pb-20" style={{ background: '#EEF2F5' }}>
         <div className="max-w-lg mx-auto">
           {/* Decorative stamp banner */}
           <TripBanner />

@@ -18,7 +18,7 @@ const tabs: { id: Tab; label: string; Icon: typeof CalendarDays }[] = [
   { id: 'pendencias', label: 'Pendências', Icon: ClipboardList },
 ]
 
-export default function BottomNav({ active, onChange, pendingCount = 0, tripName, tripColor = '#0D9488', onTripTap }: Props) {
+export default function BottomNav({ active, onChange, pendingCount = 0, tripName, tripColor = '#1B4F72', onTripTap }: Props) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
       <div className="max-w-lg mx-auto">
@@ -46,13 +46,13 @@ export default function BottomNav({ active, onChange, pendingCount = 0, tripName
               key={id}
               onClick={() => onChange(id)}
               className={`flex-1 flex flex-col items-center gap-1 py-2 text-xs font-medium transition-colors relative ${
-                active === id ? 'text-indigo-600' : 'text-gray-400 active:text-gray-600'
+                active === id ? 'text-[#1B4F72]' : 'text-gray-400 active:text-gray-600'
               }`}
             >
               <Icon
                 size={22}
                 strokeWidth={active === id ? 2.5 : 2}
-                className={active === id ? 'text-indigo-600' : 'text-gray-400'}
+                className={active === id ? 'text-[#1B4F72]' : 'text-gray-400'}
               />
               <span>{label}</span>
               {id === 'pendencias' && pendingCount > 0 && (

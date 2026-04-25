@@ -10,7 +10,7 @@
 
   body {
     @apply text-gray-900 antialiased;
-    background-color: #F4F4F4;
+    background-color: #EEF2F5;
     overscroll-behavior: none;
   }
 

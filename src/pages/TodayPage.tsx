@@ -57,7 +57,7 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
         <div className="flex items-center justify-between mt-1">
           <p className="text-sm text-gray-500 capitalize">{dateLabel} · {nearestDay.city}</p>
           {!isToday && (
-            <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-[#EAF2F8] text-[#1B4F72] px-2 py-0.5 rounded-full font-medium">
               {isPast ? 'Passado' : 'Próxima etapa'}
             </span>
           )}
@@ -73,7 +73,7 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+              className="h-full bg-[#1B4F72] rounded-full transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -82,8 +82,8 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
 
       {/* Weather */}
       {wLoading && (
-        <div className="bg-indigo-50 rounded-2xl h-32 flex items-center justify-center">
-          <p className="text-indigo-400 text-sm animate-pulse">Carregando clima...</p>
+        <div className="bg-[#EAF2F8] rounded-2xl h-32 flex items-center justify-center">
+          <p className="text-[#5B8FAA] text-sm animate-pulse">Carregando clima...</p>
         </div>
       )}
       {wError && (
@@ -104,7 +104,7 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
           </h2>
           <button
             onClick={() => setEditing({ dayId: nearestDay.id, act: newActivity(nearestDay.id), isNew: true })}
-            className="p-1.5 text-indigo-600 active:bg-indigo-50 rounded-lg"
+            className="p-1.5 text-[#1B4F72] active:bg-[#EAF2F8] rounded-lg"
           >
             <Plus size={18} />
           </button>
@@ -116,7 +116,7 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
             <p className="text-sm">Nenhuma atividade</p>
             <button
               onClick={() => setEditing({ dayId: nearestDay.id, act: newActivity(nearestDay.id), isNew: true })}
-              className="mt-3 text-sm text-indigo-600 font-medium"
+              className="mt-3 text-sm text-[#1B4F72] font-medium"
             >
               Adicionar atividade
             </button>

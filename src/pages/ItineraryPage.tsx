@@ -40,7 +40,7 @@ function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: str
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
           <div>
@@ -50,7 +50,7 @@ function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: str
               value={city}
               onChange={e => setCity(e.target.value)}
               placeholder="ex: Lisboa"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
           <div>
@@ -60,7 +60,7 @@ function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: str
               value={country}
               onChange={e => setCountry(e.target.value)}
               placeholder="ex: Portugal"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
         </div>
@@ -71,7 +71,7 @@ function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: str
           <button
             onClick={() => { if (date && city) { onAdd(date, city, country); onClose() } }}
             disabled={!date || !city}
-            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
+            className="flex-1 bg-[#1B4F72] text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50"
           >
             Adicionar
           </button>
@@ -110,7 +110,7 @@ function DayCard({
   const total = day.activities.length
 
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden ${isToday ? 'border-indigo-200' : 'border-gray-100'}`}>
+    <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden ${isToday ? 'border-[#A8C4D8]' : 'border-gray-100'}`}>
       {/* Day header */}
       <button
         onClick={() => setOpen(o => !o)}
@@ -118,7 +118,7 @@ function DayCard({
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            {isToday && <span className="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full font-medium">Hoje</span>}
+            {isToday && <span className="text-xs bg-[#1B4F72] text-white px-2 py-0.5 rounded-full font-medium">Hoje</span>}
             {isPast && !isToday && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Passado</span>}
             <p className="text-sm font-semibold text-gray-900 capitalize truncate">
               {format(parseISO(day.date), "EEEE, d 'de' MMMM", { locale: ptBR })}
@@ -139,7 +139,7 @@ function DayCard({
           </div>
           {total > 0 && (
             <div className="h-1 bg-gray-100 rounded-full mt-2 overflow-hidden w-32">
-              <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${(done / total) * 100}%` }} />
+              <div className="h-full bg-[#2A6B9A] rounded-full" style={{ width: `${(done / total) * 100}%` }} />
             </div>
           )}
         </div>
@@ -167,7 +167,7 @@ function DayCard({
           <div className="flex gap-2 px-4 py-3 border-t border-gray-50">
             <button
               onClick={() => setEditing({ act: newActivity(), isNew: true })}
-              className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium py-2 px-3 bg-indigo-50 rounded-xl active:bg-indigo-100"
+              className="flex items-center gap-1.5 text-xs text-[#1B4F72] font-medium py-2 px-3 bg-[#EAF2F8] rounded-xl active:bg-indigo-100"
             >
               <Plus size={14} /> Atividade
             </button>
@@ -225,7 +225,7 @@ export default function ItineraryPage({
             onChange={e => setTitleVal(e.target.value)}
             onBlur={() => { onUpdateTitle(titleVal); setEditingTitle(false) }}
             onKeyDown={e => { if (e.key === 'Enter') { onUpdateTitle(titleVal); setEditingTitle(false) } }}
-            className="text-xl font-bold text-gray-900 bg-transparent border-b-2 border-indigo-500 outline-none flex-1"
+            className="text-xl font-bold text-gray-900 bg-transparent border-b-2 border-[#1B4F72] outline-none flex-1"
           />
         ) : (
           <h1
@@ -257,7 +257,7 @@ export default function ItineraryPage({
       {/* Add day */}
       <button
         onClick={() => setAddingDay(true)}
-        className="w-full border-2 border-dashed border-gray-200 rounded-2xl py-4 text-sm text-gray-400 font-medium flex items-center justify-center gap-2 active:border-indigo-300 active:text-indigo-500"
+        className="w-full border-2 border-dashed border-gray-200 rounded-2xl py-4 text-sm text-gray-400 font-medium flex items-center justify-center gap-2 active:border-indigo-300 active:text-[#1B4F72]"
       >
         <Plus size={18} /> Adicionar dia
       </button>

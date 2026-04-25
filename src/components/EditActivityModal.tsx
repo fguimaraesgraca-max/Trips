@@ -64,7 +64,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
                   onClick={() => set('type', t.value)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                     form.type === t.value
-                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      ? 'bg-[#1B4F72] text-white border-[#1B4F72]'
                       : 'bg-white text-gray-700 border-gray-200 active:bg-gray-50'
                   }`}
                 >
@@ -83,7 +83,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               value={form.title}
               onChange={e => set('title', e.target.value)}
               placeholder="ex: Visitar o Castelo"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
 
@@ -94,7 +94,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               type="time"
               value={form.time}
               onChange={e => set('time', e.target.value)}
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               value={form.description}
               onChange={e => set('description', e.target.value)}
               placeholder="Detalhes opcionais"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
 
@@ -118,7 +118,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               value={form.location}
               onChange={e => set('location', e.target.value)}
               placeholder="Endereço ou nome do local"
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72]"
             />
           </div>
 
@@ -130,7 +130,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               onChange={e => set('notes', e.target.value)}
               placeholder="Dicas, confirmações, observações..."
               rows={3}
-              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none"
             />
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
           <button
             onClick={handleSave}
             disabled={!form.title.trim()}
-            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50 active:bg-indigo-700"
+            className="flex-1 bg-[#1B4F72] text-white py-3 rounded-xl text-sm font-semibold disabled:opacity-50 active:bg-[#0E3252]"
           >
             Salvar
           </button>
