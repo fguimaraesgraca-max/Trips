@@ -275,60 +275,86 @@ export const tips: Tip[] = [
   { id: 'r29', text: 'Barraca da Praia: filé de peixe frito na chapa com limão siciliano e pimenta-de-cheiro. A refeição mais simples e honesta de Atins. Embrulhado em papel pardo.', author: 'Carlos S.', source: 'Viajante', rating: 4, category: 'restaurant', city: 'Atins' },
   { id: 'r30', text: 'Pousada e Restaurante Kiite House: açaí de verdade batido na hora com banana e granola artesanal. Frequentado pelos kitesurfistas. Melhor almoço pós-kite da vida.', author: 'André L.', source: 'Google', rating: 5, category: 'restaurant', city: 'Atins' },
 
-  // Geral Portugal
-  {
-    id: 't15',
-    text: 'Portugal é muito seguro, mas cuidado com batedores de carteira no Tram 28 e em áreas turísticas movimentadas.',
-    author: 'Alexandre D.',
-    source: 'TripAdvisor',
-    rating: 4,
-    category: 'safety',
-  },
-  {
-    id: 't16',
-    text: 'Supermercados portugueses (Pingo Doce, Continente) têm vinhos excepcionais por €3–8. Melhor que qualquer loja turística!',
-    author: 'Ricardo V.',
-    source: 'Google',
-    rating: 5,
-    category: 'budget',
-  },
-  {
-    id: 't17',
-    text: 'Use sempre "obrigado/obrigada" e "faz favor" para chamar o garçom. Portugueses são muito educados e esperam o mesmo.',
-    author: 'Camila T.',
-    source: 'Viajante',
-    rating: 5,
-    category: 'culture',
-  },
-  {
-    id: 't18',
-    text: 'O almoço executivo (menu do dia) nos tascas custa €8–12 com entrada, prato, bebida e sobremesa. Melhor custo-benefício!',
-    author: 'Bruno K.',
-    source: 'TripAdvisor',
-    rating: 5,
-    category: 'food',
-  },
-  {
-    id: 't19',
-    text: 'Compre pastel de bacalhau em qualquer padaria — é barato, gostoso e o lanche perfeito para explorar a cidade.',
-    author: 'Isabela M.',
-    source: 'Google',
-    rating: 4,
-    category: 'food',
-  },
-  {
-    id: 't20',
-    text: 'O Uber funciona muito bem em Lisboa e Porto. Costuma ser mais barato e fácil do que táxi tradicional.',
-    author: 'Felipe G.',
-    source: 'Viajante',
-    rating: 4,
-    category: 'transport',
-  },
+  // Geral Portugal (tags corretas)
+  { id: 't15', text: 'Lisboa é muito segura, mas cuidado com batedores de carteira no Elétrico 28 e em áreas turísticas movimentadas.', author: 'Alexandre D.', source: 'TripAdvisor', rating: 4, category: 'safety', city: 'Lisboa' },
+  { id: 't16', text: 'Supermercados portugueses (Pingo Doce, Continente) têm vinhos excepcionais por €3–8. Melhor que qualquer loja turística!', author: 'Ricardo V.', source: 'Google', rating: 5, category: 'budget', city: 'Lisboa' },
+  { id: 't17', text: 'Use "obrigado/obrigada" e "faz favor" para chamar o garçom. Portugueses são muito educados e esperam o mesmo.', author: 'Camila T.', source: 'Viajante', rating: 5, category: 'culture', city: 'Lisboa' },
+  { id: 't18', text: 'O almoço executivo (menu do dia) nas tascas custa €8–12 com entrada, prato, bebida e sobremesa. Melhor custo-benefício!', author: 'Bruno K.', source: 'TripAdvisor', rating: 5, category: 'food', city: 'Lisboa' },
+  { id: 't19', text: 'Compre pastel de bacalhau em qualquer padaria — é barato, gostoso e o lanche perfeito para explorar a cidade.', author: 'Isabela M.', source: 'Google', rating: 4, category: 'food', city: 'Lisboa' },
+  { id: 't20', text: 'O Uber funciona muito bem em Lisboa e Porto. Costuma ser mais barato e fácil do que táxi tradicional.', author: 'Felipe G.', source: 'Viajante', rating: 4, category: 'transport', city: 'Lisboa' },
+
+  // Amsterdam
+  { id: 'am1', text: 'Reserve o Museu Anne Frank com MESES de antecedência — esgota rapidíssimo. Não deixe para depois!', author: 'Mariana S.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Amsterdam' },
+  { id: 'am2', text: 'Alugue uma bicicleta logo no primeiro dia. É a forma mais autêntica (e rápida) de explorar Amsterdam. Cuide-se no trânsito — os ciclistas locais são velozes!', author: 'Felipe R.', source: 'Google', rating: 5, category: 'transport', city: 'Amsterdam' },
+  { id: 'am3', text: 'O I Amsterdam City Card cobre transporte público + entrada em +70 museus. Vale muito para 2+ dias de passeio.', author: 'Patrícia L.', source: 'TripAdvisor', rating: 5, category: 'budget', city: 'Amsterdam' },
+  { id: 'am4', text: 'Compre stroopwafels frescos no mercado Albert Cuyp (funciona de seg a sáb). Infinitamente melhores que os embalados.', author: 'Carlos M.', source: 'Viajante', rating: 5, category: 'food', city: 'Amsterdam' },
+  { id: 'am5', text: 'O Rijksmuseum e o Van Gogh Museum ficam lado a lado na Museumplein — reserve entradas online com antecedência, filas são enormes.', author: 'Ana Beatriz P.', source: 'Google', rating: 5, category: 'culture', city: 'Amsterdam' },
+  { id: 'am6', text: 'Passeio de barco pelos canais ao entardecer é mágico. Os canais do Jordaan são os mais bonitos — prefira barcos pequenos e abertos.', author: 'Rodrigo V.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Amsterdam' },
+
+  // Bruges
+  { id: 'br1', text: 'Bruges é completamente walkable — esqueça o carro. O centro histórico medieval cabe em passeio a pé de 2h.', author: 'Letícia F.', source: 'TripAdvisor', rating: 5, category: 'transport', city: 'Bruges' },
+  { id: 'br2', text: 'Tour de barco pelo canal (30 min, €12/pessoa) é obrigatório. Vista completamente diferente da cidade — faz parte!', author: 'Diego K.', source: 'Google', rating: 5, category: 'general', city: 'Bruges' },
+  { id: 'br3', text: 'Experimente fritas belgas numa frietkot local com molho de maionaise. Nada a ver com as fritas francesas — são mais grossas e crocantes.', author: 'Amanda C.', source: 'Viajante', rating: 5, category: 'food', city: 'Bruges' },
+  { id: 'br4', text: 'O Bruges City Card (€20, 48h) dá acesso a 27 museus + descontos. Museus de chocolate e cerveja estão incluídos.', author: 'Juliana R.', source: 'TripAdvisor', rating: 4, category: 'budget', city: 'Bruges' },
+  { id: 'br5', text: 'Waffles de Liège (a versão caramelizada) são os originais — evite os de Brussels style nas barracas turísticas. Procure uma padaria local.', author: 'Bruno T.', source: 'Google', rating: 5, category: 'food', city: 'Bruges' },
+  { id: 'br6', text: 'Suba o campanário Belfort (366 degraus!) para a melhor vista de Bruges. Vá cedo — loteia rapidamente e a subida é cansativa mas vale.', author: 'Isabela N.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Bruges' },
+
+  // Brussels
+  { id: 'bu1', text: 'A Grand Place é de graça e ainda mais linda à noite com a iluminação. Reserve o final da tarde para ver o pôr do sol nos edifícios dourados.', author: 'Fernanda G.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Brussels' },
+  { id: 'bu2', text: 'Moules-frites é o prato típico de Bruxelas — vá a uma brasserie tradicional como Chez Léon ou La Roue d\'Or. Evite os restaurantes da Grand Place.', author: 'Ricardo A.', source: 'Google', rating: 5, category: 'food', city: 'Brussels' },
+  { id: 'bu3', text: 'Os chocolateiros belgas na Rue au Beurre (Neuhaus, Leonidas, Godiva) são a melhor lembrança que você pode trazer. Godiva na origem é muito diferente!', author: 'Sofia B.', source: 'Viajante', rating: 5, category: 'food', city: 'Brussels' },
+  { id: 'bu4', text: 'Metrô e trams funcionam muito bem. Um bilhete de 10 viagens (MOBIB) sai mais barato que avulso. Compre na estação ou no app STIB.', author: 'Paulo C.', source: 'TripAdvisor', rating: 4, category: 'transport', city: 'Brussels' },
+  { id: 'bu5', text: 'Manneken Pis é bem menor do que parece nas fotos — mas vale a piada. O museu do traje dele (sim, existe!) é uma das experiências mais surreais de Bruxelas.', author: 'Thiago M.', source: 'Google', rating: 4, category: 'culture', city: 'Brussels' },
+
+  // Budapest
+  { id: 'bud1', text: 'Os banhos termais (Széchenyi, Gellért, Rudas) são imperdíveis. Reserve com antecedência online e leve toalha. O Széchenyi é o mais famoso e fotogênico.', author: 'Camila A.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Budapest' },
+  { id: 'bud2', text: 'Os ruin bars (romkocsma) do District VII são uma experiência única — bares instalados em prédios abandonados decorados com objetos vintage. Szimpla Kert é o mais icônico.', author: 'Gabriel V.', source: 'Google', rating: 5, category: 'general', city: 'Budapest' },
+  { id: 'bud3', text: 'Cruzeiro noturno no Danúbio: o Castelo de Buda e o Parlamento iluminados à noite são de tirar o fôlego. Um dos cenários mais bonitos da Europa.', author: 'Larissa P.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Budapest' },
+  { id: 'bud4', text: 'Budapest Card cobre transporte ilimitado + entrada em museus + descontos. Vale para 24h, 48h ou 72h. Compre no aeroporto ou online.', author: 'Marcos F.', source: 'Viajante', rating: 4, category: 'budget', city: 'Budapest' },
+  { id: 'bud5', text: 'Lángos (massa frita com creme azedo e queijo) é o street food húngaro por excelência — compre num mercado local, não nas barracas turísticas. Custa ~800 HUF.', author: 'Ana Paula R.', source: 'Google', rating: 5, category: 'food', city: 'Budapest' },
+  { id: 'bud6', text: 'Use forint húngaro (HUF). Câmbio é melhor dentro da Hungria. Evite câmbio no aeroporto — procure caixas eletrônicos Euronet ou bancos locais.', author: 'Rodrigo S.', source: 'TripAdvisor', rating: 4, category: 'budget', city: 'Budapest' },
+
+  // Zagreb
+  { id: 'za1', text: 'O Museu das Relações Rompidas é um dos mais originais da Europa — objetos doados por pessoas de todo o mundo, cada um com sua história de amor terminado.', author: 'Juliana K.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Zagreb' },
+  { id: 'za2', text: 'O mercado Dolac (segunda a sábado, até 14h) é o coração de Zagreb — frutas, queijos, mel e flores. Perfeito para café da manhã ao ar livre.', author: 'Carlos E.', source: 'Google', rating: 5, category: 'food', city: 'Zagreb' },
+  { id: 'za3', text: 'O funicular do Zagreb é o mais curto do mundo (66m) e custa apenas 0,66 EUR. Leva ao Upper Town (Gornji Grad) em 1 minuto.', author: 'Isabela M.', source: 'Viajante', rating: 4, category: 'transport', city: 'Zagreb' },
+  { id: 'za4', text: 'A Rua Tkalčićeva é o point de cafés e barzinhos ao ar livre — ótima para tomar uma cerveja Ožujsko local e observar a vida da cidade.', author: 'Bruno A.', source: 'TripAdvisor', rating: 4, category: 'general', city: 'Zagreb' },
+
+  // Plitvice
+  { id: 'pl1', text: 'COMPRE os ingressos online com antecedência — esgotam completamente, especialmente entre maio e setembro. Sem ingresso, não entra, mesmo chegando cedo.', author: 'Fernanda C.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Plitvice' },
+  { id: 'pl2', text: 'Rota A (4–6h) inclui lagos superiores e inferiores — a mais completa. Rota B (2–3h) só lagos inferiores, ideal se tiver pouco tempo. Ambas incluem barco e teleférico.', author: 'Diego V.', source: 'Google', rating: 5, category: 'transport', city: 'Plitvice' },
+  { id: 'pl3', text: 'Use calçados impermeáveis ou sandálias fechadas — as passarelas de madeira ficam constantemente molhadas. Tênis branco vai embora.', author: 'Letícia N.', source: 'Viajante', rating: 5, category: 'general', city: 'Plitvice' },
+  { id: 'pl4', text: 'Chegue na abertura (7h no verão) — os lagos superiores ficam vazios nas primeiras horas. Depois das 10h a multidão é enorme.', author: 'Paulo L.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Plitvice' },
+
+  // Zadar
+  { id: 'zdr1', text: 'O Órgão do Mar (Morske orgulje) é uma instalação sonora na beira-mar — ondas tocam música pelos dutos. Melhor ao entardecer, com o pôr do sol ao fundo.', author: 'Camila B.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Zadar' },
+  { id: 'zdr2', text: 'A Saudação ao Sol (Pozdrav Suncu) fica logo ao lado do Órgão — 300 placas solares que criam show de luz à noite. Alfred Hitchcock disse que Zadar tem o mais belo pôr do sol do mundo.', author: 'Rafael K.', source: 'Google', rating: 5, category: 'culture', city: 'Zadar' },
+  { id: 'zdr3', text: 'Konoba Skoblar: frutos do mar fresquíssimos no casco histórico de Zadar. O polvo grelhado e os prstaci (mariscos locais) são os destaques — reserve com antecedência.', author: 'Ana C.', source: 'TripAdvisor', rating: 5, category: 'food', city: 'Zadar' },
+
+  // Split
+  { id: 'sp1', text: 'O Palácio de Diocleciano ainda é bairro habitado — pessoas vivem, trabalham e tomam café dentro de uma estrutura romana de 1700 anos. Simplesmente incrível.', author: 'Marcos T.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Split' },
+  { id: 'sp2', text: 'A Riva (orla de Split) é o melhor lugar para um espresso de manhã assistindo os ferries partirem. Cafés na orla são um pouco mais caros mas a vista compensa.', author: 'Juliana F.', source: 'Google', rating: 5, category: 'food', city: 'Split' },
+  { id: 'sp3', text: 'Peka (polvo ou vitela assados lentamente sob uma campânula) é o prato mais tradicional da Dalmácia — peça com 24h de antecedência em qualquer konoba.', author: 'Ricardo A.', source: 'Viajante', rating: 5, category: 'food', city: 'Split' },
+  { id: 'sp4', text: 'Ferries para Hvar saem do porto de Split (35 min, ~€6). Compre passagem direto no porto — não precisa reservar com tanta antecedência para pedestres.', author: 'Larissa M.', source: 'TripAdvisor', rating: 4, category: 'transport', city: 'Split' },
+
+  // Makarska
+  { id: 'mk1', text: 'O Parque Natural de Biokovo fica acima de Makarska — o Skywalk Biokovo (plataforma de vidro) tem vista panorâmica de 360° da Dalmácia e das ilhas. Reserve online.', author: 'Isabela P.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Makarska' },
+  { id: 'mk2', text: 'A praia de Makarska é de seixos (não areia) — leve sandálias de água. A água é cristalina e fria, ideal para mergulho com snorkel.', author: 'Bruno F.', source: 'Google', rating: 4, category: 'general', city: 'Makarska' },
+  { id: 'mk3', text: 'Restaurante Riva: frutos do mar frescos na orla de Makarska — polvo grelhado com alho e azeite é um clássico. Peça direto com o pescador na manhã para o mais fresco.', author: 'Thiago C.', source: 'TripAdvisor', rating: 5, category: 'food', city: 'Makarska' },
+
+  // Dubrovnik
+  { id: 'db1', text: 'A caminhada nas muralhas da cidade (2km, €35/pessoa) é obrigatória — compre ingresso online para evitar fila. O pôr do sol a partir das muralhas é inesquecível.', author: 'Fernanda A.', source: 'TripAdvisor', rating: 5, category: 'culture', city: 'Dubrovnik' },
+  { id: 'db2', text: 'O bondinho (teleférico) para o Monte Srđ oferece a melhor vista de Dubrovnik e das ilhas. Vá ao entardecer — a luz dourada sobre a cidade velha é fenomenal.', author: 'Carlos R.', source: 'Google', rating: 5, category: 'general', city: 'Dubrovnik' },
+  { id: 'db3', text: 'Ferry para a ilha Lokrum (15 min, €3,50) tem pavões soltos, ruínas de monastério e uma lagoa para nadar. Ótimo escape das multidões da cidade velha.', author: 'Sofia L.', source: 'TripAdvisor', rating: 5, category: 'general', city: 'Dubrovnik' },
+  { id: 'db4', text: 'Caiaque ao redor das muralhas ao amanhecer — a experiência mais bonita de Dubrovnik e com poucas pessoas. Várias empresas oferecem o tour logo na marina.', author: 'Gabriel M.', source: 'Viajante', rating: 5, category: 'general', city: 'Dubrovnik' },
+  { id: 'db5', text: 'Dubrovnik é cara — coma fora da cidade velha. Konoba Labrint, 5 min de caminhada, serve comida dalmatina boa pela metade do preço.', author: 'Ana Paula V.', source: 'Google', rating: 4, category: 'budget', city: 'Dubrovnik' },
+  { id: 'db6', text: 'Táxi para o aeroporto: reserve com antecedência, especialmente para voos cedo de manhã. O aeroporto fica em Čilipi, a 20km — sem opção de Uber oficial.', author: 'Ricardo F.', source: 'TripAdvisor', rating: 4, category: 'transport', city: 'Dubrovnik' },
 ]
 
 export function getTipsForCity(city: string): Tip[] {
   const normalized = city.toLowerCase()
   const cityTips = tips.filter(t => t.city?.toLowerCase() === normalized)
-  const generalTips = tips.filter(t => !t.city)
-  return [...cityTips, ...generalTips]
+  if (cityTips.length > 0) return cityTips
+  // Fallback: only show non-city tips if we have no specific match
+  return tips.filter(t => !t.city)
 }

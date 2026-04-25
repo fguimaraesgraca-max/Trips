@@ -41,7 +41,20 @@ export default function TipsBalloon({ city }: Props) {
   }, [idx, filtered.length])
 
   const tip: Tip | undefined = filtered[idx]
-  if (!tip) return null
+
+  if (!tip) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5 text-center space-y-2">
+        <p className="text-2xl">💬</p>
+        <p className="text-sm font-semibold text-gray-700">Dicas para {city}</p>
+        <p className="text-xs text-gray-400">Pesquise experiências de outros viajantes</p>
+        <div className="flex justify-center gap-4 pt-1">
+          <a href={`https://www.tripadvisor.com/Search?q=${encodeURIComponent(city)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-emerald-600 font-medium"><ExternalLink size={12} /> TripAdvisor</a>
+          <a href={`https://www.google.com/search?q=${encodeURIComponent('o que fazer em ' + city)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-blue-600 font-medium"><ExternalLink size={12} /> Google</a>
+        </div>
+      </div>
+    )
+  }
 
   const categories = Array.from(new Set(all.map(t => t.category)))
 
@@ -145,7 +158,7 @@ export default function TipsBalloon({ city }: Props) {
       {/* View more */}
       <div className="border-t border-gray-100 px-4 py-2.5 flex gap-3">
         <a
-          href={`https://www.tripadvisor.com/Search?q=${encodeURIComponent(city + ' Portugal')}`}
+          href={`https://www.tripadvisor.com/Search?q=${encodeURIComponent(city)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-xs text-emerald-600 font-medium"
