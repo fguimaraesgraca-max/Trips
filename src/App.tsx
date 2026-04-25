@@ -10,7 +10,7 @@ import TipsPage from './pages/TipsPage'
 import PendenciasPage from './pages/PendenciasPage'
 import WelcomePage from './pages/WelcomePage'
 import { Trip, Day } from './types'
-import { parseItineraryText } from './utils/parseItinerary'
+import { parseItineraryText, debugParseItinerary, ParseDebug } from './utils/parseItinerary'
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -172,16 +172,16 @@ function CreateTripModal({
   const [date, setDate] = useState(todayISO())
   const [rawText, setRawText] = useState('')
   const [parsed, setParsed] = useState<{ days: number; acts: number } | null>(null)
-  const [parseError, setParseError] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<ParseDebug | null>(null)
 
   function handleParse() {
-    setParseError(false)
     setParsed(null)
+    setDebugInfo(null)
+    const dbg = debugParseItinerary(rawText)
+    setDebugInfo(dbg)
     const days = parseItineraryText(rawText)
     if (days.length > 0) {
       setParsed({ days: days.length, acts: days.reduce((s, d) => s + d.activities.length, 0) })
-    } else {
-      setParseError(true)
     }
   }
 
@@ -262,7 +262,7 @@ function CreateTripModal({
                 </p>
                 <textarea
                   value={rawText}
-                  onChange={e => { setRawText(e.target.value); setParsed(null); setParseError(false) }}
+                  onChange={e => { setRawText(e.target.value); setParsed(null); setDebugInfo(null) }}
                   placeholder={
                     '14/05 - São Paulo\n18h Voo GRU → AMS LATAM\n\n15/05 - Amsterdam\n11:00 Chegada Schiphol\n15:00 Check-in hotel\n18h Passeio Jordaan\n\n20/05 - Bruges\n15:00 Hotel Biskajer - Check-in'
                   }
@@ -277,20 +277,34 @@ function CreateTripModal({
               >
                 🔍 Organizar roteiro
               </button>
-              {parsed && (
+              {debugInfo && parsed && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
                   <span className="text-2xl">✅</span>
                   <div>
                     <p className="text-emerald-800 text-sm font-bold">Roteiro organizado!</p>
-                    <p className="text-emerald-600 text-xs mt-0.5">{parsed.days} dias · {parsed.acts} atividades detectadas</p>
+                    <p className="text-emerald-600 text-xs mt-0.5">
+                      {parsed.days} dias · {parsed.acts} atividades · {debugInfo.totalLines} linhas lidas
+                    </p>
                   </div>
                 </div>
               )}
-              {parseError && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                  <p className="text-amber-800 text-sm font-bold">Nenhuma data detectada</p>
-                  <p className="text-amber-600 text-xs mt-1">
-                    Inclua cabeçalhos de data como <span className="font-mono font-bold">14/05</span>, <span className="font-mono font-bold">14/Mai</span> ou <span className="font-mono font-bold">14 de maio</span> antes de cada dia.
+              {debugInfo && !parsed && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
+                  <p className="text-amber-800 text-sm font-bold">
+                    {debugInfo.dateLines.length === 0
+                      ? 'Nenhum cabeçalho de data encontrado'
+                      : `${debugInfo.dateLines.length} data(s) detectada(s), mas sem atividades`}
+                  </p>
+                  <p className="text-amber-700 text-xs">
+                    {debugInfo.totalLines} linhas lidas. Primeira linha: <span className="font-mono">"{debugInfo.firstLine.slice(0, 50)}"</span>
+                  </p>
+                  {debugInfo.dateLines.length > 0 && (
+                    <p className="text-amber-700 text-xs">
+                      Datas detectadas: {debugInfo.dateLines.slice(0, 3).map(d => d.date).join(', ')}
+                    </p>
+                  )}
+                  <p className="text-amber-600 text-xs border-t border-amber-200 pt-2">
+                    Formato esperado por linha de dia: <span className="font-mono font-bold">14/05</span>, <span className="font-mono font-bold">14/Mai</span> ou <span className="font-mono font-bold">14 de maio</span> — seguido das atividades abaixo.
                   </p>
                 </div>
               )}

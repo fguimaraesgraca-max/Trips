@@ -110,13 +110,22 @@ function detectType(text: string): ActivityType {
 
 function isDateLine(line: string): boolean {
   if (!parseDate(line)) return false
-  const l = line.toLowerCase().trim()
-  // Pure date or date with weekday
-  if (/^(segunda|terça|quarta|quinta|sexta|sábado|domingo|monday|tuesday|wednesday|thursday|friday|saturday|sunday|seg|ter|qua|qui|sex|s[aá]b|dom)[a-z\-]*[\s,.\-]*\d/i.test(l)) return true
-  if (/^dia\s+\d/i.test(l)) return true
-  if (/^chegada\s+\d/i.test(l)) return true
-  // Line is short and mostly a date
-  if (line.trim().length <= 40 && /\d/.test(line)) return true
+
+  // Strip leading markdown/bullet chars to get the effective start
+  const clean = line.toLowerCase().trim().replace(/^[*\-•>#\s]+/, '')
+
+  // Weekday-led: "Quinta 14/05", "Seg, 14/Mai", "Segunda-feira, 14 de maio"
+  if (/^(segunda|terça|quarta|quinta|sexta|sábado|domingo|monday|tuesday|wednesday|thursday|friday|saturday|sunday|seg|ter|qua|qui|sex|s[aá]b|dom)\b/.test(clean)) return true
+
+  // "Dia N" / "Chegada N" prefixes
+  if (/^(dia|chegada)\s+\d/.test(clean)) return true
+
+  // Line STARTS with a date: "14/05", "14/Mai", "14-05"
+  if (/^\d{1,2}[\/\-](\d{1,2}|[a-z]{2,9})\b/.test(clean) && line.trim().length <= 60) return true
+
+  // "14 de maio" at the very start
+  if (/^\d{1,2}\s+de\s+[a-z]/.test(clean)) return true
+
   return false
 }
 
@@ -215,4 +224,18 @@ export function parseItineraryText(rawText: string, year = 2026): Day[] {
 
   flush()
   return days
+}
+
+export interface ParseDebug {
+  totalLines: number
+  dateLines: { line: string; date: string }[]
+  firstLine: string
+}
+
+export function debugParseItinerary(rawText: string, year = 2026): ParseDebug {
+  const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean)
+  const dateLines = lines
+    .filter(l => isDateLine(l))
+    .map(l => ({ line: l, date: parseDate(l, year)! }))
+  return { totalLines: lines.length, dateLines, firstLine: lines[0] ?? '' }
 }
