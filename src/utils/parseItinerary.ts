@@ -245,7 +245,7 @@ function extractDateNeeded(text: string): string {
   return ''
 }
 
-function parsePendingBlock(blockText: string): PendingItem[] {
+export function parsePendingBlock(blockText: string): PendingItem[] {
   const items: PendingItem[] = []
   for (const line of blockText.split('\n')) {
     const trimmed = line.trim()
