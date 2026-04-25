@@ -155,7 +155,13 @@ function ImportModal({ onImport, onClose }: { onImport: (items: PendingItem[]) =
 
 // ─── BookingReminderCard ──────────────────────────────────────────────────────
 
-function BookingReminderCard({ info, onAddToPending }: { info: BookingInfo; onAddToPending: (item: PendingItem) => void }) {
+function BookingReminderCard({
+  info, added, onAddToPending,
+}: {
+  info: BookingInfo
+  added: boolean
+  onAddToPending: (item: PendingItem) => void
+}) {
   const isHotel = info.actType === 'hotel'
   const isTransport = info.actType === 'transport'
   const Icon = isHotel ? Hotel : isTransport ? Car : Plane
@@ -170,6 +176,7 @@ function BookingReminderCard({ info, onAddToPending }: { info: BookingInfo; onAd
   })()
 
   function handleAdd() {
+    if (added) return
     const notes = [
       info.reservationCode ? `Reserva #${info.reservationCode}` : '',
       info.airline ? `Cia: ${info.airline}` : '',
@@ -212,10 +219,17 @@ function BookingReminderCard({ info, onAddToPending }: { info: BookingInfo; onAd
         </div>
         <button
           onClick={handleAdd}
-          className="flex-shrink-0 mt-0.5 w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center active:bg-indigo-50"
-          title="Adicionar à lista de pendências"
+          disabled={added}
+          className={`flex-shrink-0 mt-0.5 w-7 h-7 rounded-full border flex items-center justify-center transition-colors ${
+            added
+              ? 'bg-emerald-50 border-emerald-200 cursor-default'
+              : 'bg-white border-gray-200 active:bg-indigo-50'
+          }`}
+          title={added ? 'Já adicionado' : 'Adicionar à lista de pendências'}
         >
-          <Plus size={14} className="text-indigo-600" />
+          {added
+            ? <CheckCircle2 size={14} className="text-emerald-500" />
+            : <Plus size={14} className="text-indigo-600" />}
         </button>
       </div>
     </div>
@@ -378,12 +392,19 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
   const sorted = [...pending].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
   const bookings = extractBookings(days)
 
+  // Normalised set of existing titles for deduplication
+  const existingTitles = new Set(items.map(i => i.title.trim().toLowerCase()))
+
   function handleImport(newItems: PendingItem[]) {
-    newItems.forEach(item => onSave(item))
+    newItems
+      .filter(item => !existingTitles.has(item.title.trim().toLowerCase()))
+      .forEach(item => onSave(item))
   }
 
   function handleAddBookingToPending(item: PendingItem) {
-    onSave(item)
+    if (!existingTitles.has(item.title.trim().toLowerCase())) {
+      onSave(item)
+    }
   }
 
   return (
@@ -474,6 +495,7 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
             <div className="mt-2 space-y-2">
               {bookings.map((b, i) => (
                 <BookingReminderCard key={i} info={b}
+                  added={existingTitles.has(b.title.trim().toLowerCase())}
                   onAddToPending={handleAddBookingToPending} />
               ))}
             </div>
