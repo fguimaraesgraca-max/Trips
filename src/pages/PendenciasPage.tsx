@@ -1,12 +1,152 @@
 import { useState } from 'react'
-import { Plus, CheckCircle2, Circle, ChevronDown, ChevronUp, Trash2, Pencil, X } from 'lucide-react'
-import { PendingItem, PendingPriority } from '../types'
+import { Plus, CheckCircle2, Circle, ChevronDown, ChevronUp, Trash2, Pencil, X, Plane, Hotel, Car } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { PendingItem, PendingPriority, Day, ActivityType } from '../types'
 
 const PRIORITY_META: Record<PendingPriority, { label: string; dot: string; bg: string; text: string }> = {
   critico: { label: 'Crítico', dot: 'bg-red-500', bg: 'bg-red-50 border-red-200', text: 'text-red-700' },
   importante: { label: 'Importante', dot: 'bg-amber-400', bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700' },
   normal: { label: 'Normal', dot: 'bg-emerald-400', bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700' },
 }
+
+// ─── Booking extraction ───────────────────────────────────────────────────────
+
+interface BookingInfo {
+  actType: 'flight' | 'hotel' | 'transport'
+  title: string
+  date: string
+  city: string
+  airline?: string
+  reservationCode?: string
+  checkinTime?: string
+  checkoutTime?: string
+}
+
+function extractReservationCode(text: string): string | null {
+  const named = text.match(/(?:reserva|código|code|ref|booking|record|no\.?)\s*[:#]?\s*([A-Z0-9]{5,12})/i)
+  if (named) return named[1]
+  const numeric = text.match(/\b(\d{7,12})\b/)
+  if (numeric) return numeric[1]
+  return null
+}
+
+function extractAirline(text: string): string | null {
+  const t = text.toLowerCase()
+  if (/\blatam\b/.test(t)) return 'LATAM'
+  if (/\btap\b/.test(t)) return 'TAP'
+  if (/\bklm\b/.test(t)) return 'KLM'
+  if (/\bryanair\b/.test(t)) return 'Ryanair'
+  if (/\beasyjet\b/.test(t)) return 'EasyJet'
+  if (/\bwizz\b/.test(t)) return 'Wizz Air'
+  if (/\bazul\b/.test(t)) return 'Azul'
+  if (/\bgol\b/.test(t)) return 'GOL'
+  if (/\blufthansa\b/.test(t)) return 'Lufthansa'
+  if (/\bair france\b/.test(t)) return 'Air France'
+  if (/\bturkish\b/.test(t)) return 'Turkish Airlines'
+  if (/\biberia\b/.test(t)) return 'Iberia'
+  if (/\bflibco\b/.test(t)) return 'Flibco'
+  return null
+}
+
+function extractCheckinTime(text: string): string | null {
+  const m = text.match(/check.?in[:\s]+(?:a partir d[ao]s?\s+)?(\d{1,2}[h:]\d{0,2})/i)
+  if (m) return m[1].replace(/h(\d*)$/, (_, min) => `:${(min || '00').padStart(2, '0')}`)
+  return null
+}
+
+function extractCheckoutTime(text: string): string | null {
+  const m = text.match(/check.?out[:\s]+(?:at[eé]\s+)?(\d{1,2}[h:]\d{0,2})/i)
+  if (m) return m[1].replace(/h(\d*)$/, (_, min) => `:${(min || '00').padStart(2, '0')}`)
+  return null
+}
+
+const BOOKABLE_TYPES: ActivityType[] = ['flight', 'hotel', 'transport']
+
+function extractBookings(days: Day[]): BookingInfo[] {
+  const result: BookingInfo[] = []
+  for (const day of days) {
+    for (const act of day.activities) {
+      if (!BOOKABLE_TYPES.includes(act.type)) continue
+      const text = [act.title, act.description, act.notes].join(' ')
+      const reservationCode = extractReservationCode(text) ?? undefined
+      const airline = (act.type === 'flight' || act.type === 'transport') ? extractAirline(text) ?? undefined : undefined
+      const checkinTime = extractCheckinTime(text) ?? undefined
+      const checkoutTime = extractCheckoutTime(text) ?? undefined
+      if (reservationCode || airline || checkinTime || checkoutTime) {
+        result.push({
+          actType: act.type as 'flight' | 'hotel' | 'transport',
+          title: act.title,
+          date: day.date,
+          city: day.city,
+          reservationCode,
+          airline,
+          checkinTime,
+          checkoutTime,
+        })
+      }
+    }
+  }
+  return result
+}
+
+// ─── BookingReminderCard ──────────────────────────────────────────────────────
+
+function BookingReminderCard({ info }: { info: BookingInfo }) {
+  const isHotel = info.actType === 'hotel'
+  const isTransport = info.actType === 'transport'
+  const Icon = isHotel ? Hotel : isTransport ? Car : Plane
+
+  const bg = isHotel ? 'bg-purple-50 border-purple-100'
+    : isTransport ? 'bg-gray-50 border-gray-200'
+    : 'bg-sky-50 border-sky-100'
+  const iconBg = isHotel ? 'bg-purple-100' : isTransport ? 'bg-gray-100' : 'bg-sky-100'
+  const iconColor = isHotel ? 'text-purple-600' : isTransport ? 'text-gray-600' : 'text-sky-600'
+  const codeBg = isHotel ? 'bg-purple-100 text-purple-800'
+    : isTransport ? 'bg-gray-200 text-gray-800'
+    : 'bg-sky-100 text-sky-800'
+
+  const dateLabel = (() => {
+    try { return format(parseISO(info.date), "d 'de' MMM", { locale: ptBR }) }
+    catch { return info.date }
+  })()
+
+  return (
+    <div className={`rounded-2xl border px-4 py-3.5 ${bg}`}>
+      <div className="flex items-start gap-3">
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${iconBg}`}>
+          <Icon size={16} className={iconColor} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-900 leading-snug">{info.title}</p>
+          <p className="text-xs text-gray-500 mt-0.5">📅 {dateLabel} · {info.city}</p>
+          {info.airline && (
+            <p className="text-xs text-gray-600 mt-0.5">✈️ {info.airline}</p>
+          )}
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {info.reservationCode && (
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${codeBg}`}>
+                #{info.reservationCode}
+              </span>
+            )}
+            {info.checkinTime && (
+              <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-lg font-medium">
+                Check-in: {info.checkinTime}
+              </span>
+            )}
+            {info.checkoutTime && (
+              <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-lg font-medium">
+                Check-out: {info.checkoutTime}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── EditPendingModal ─────────────────────────────────────────────────────────
 
 function EditPendingModal({
   item,
@@ -34,7 +174,6 @@ function EditPendingModal({
           <button onClick={onClose}><X size={20} className="text-gray-500" /></button>
         </div>
         <div className="px-4 py-4 space-y-4">
-          {/* Priority */}
           <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Prioridade</label>
             <div className="flex gap-2 mt-2">
@@ -125,6 +264,8 @@ function EditPendingModal({
   )
 }
 
+// ─── PendingCard ──────────────────────────────────────────────────────────────
+
 function PendingCard({
   item,
   onToggle,
@@ -144,7 +285,6 @@ function PendingCard({
         onClick={() => setExpanded(e => !e)}
         className="w-full flex items-start gap-3 px-4 py-3.5 text-left"
       >
-        {/* Toggle done */}
         <button
           onClick={e => { e.stopPropagation(); onToggle() }}
           className="mt-0.5 flex-shrink-0"
@@ -202,15 +342,18 @@ function PendingCard({
   )
 }
 
+// ─── Main page ────────────────────────────────────────────────────────────────
+
 interface Props {
   items: PendingItem[]
+  days?: Day[]
   onToggle: (id: string) => void
   onSave: (item: PendingItem) => void
   onDelete: (id: string) => void
   newItem: () => PendingItem
 }
 
-export default function PendenciasPage({ items, onToggle, onSave, onDelete, newItem }: Props) {
+export default function PendenciasPage({ items, days = [], onToggle, onSave, onDelete, newItem }: Props) {
   const [editing, setEditing] = useState<{ item: PendingItem; isNew: boolean } | null>(null)
 
   const pending = items.filter(i => i.status === 'pendente')
@@ -218,6 +361,8 @@ export default function PendenciasPage({ items, onToggle, onSave, onDelete, newI
 
   const priorityOrder: Record<PendingPriority, number> = { critico: 0, importante: 1, normal: 2 }
   const sorted = [...pending].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+
+  const bookings = extractBookings(days)
 
   return (
     <div className="px-4 py-4 space-y-4">
@@ -252,6 +397,18 @@ export default function PendenciasPage({ items, onToggle, onSave, onDelete, newI
         </div>
       )}
 
+      {/* Booking reminders from itinerary */}
+      {bookings.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            Reservas no roteiro 🎫
+          </p>
+          {bookings.map((b, i) => (
+            <BookingReminderCard key={i} info={b} />
+          ))}
+        </div>
+      )}
+
       {sorted.length > 0 && (
         <div className="space-y-3">
           {sorted.map(item => (
@@ -279,7 +436,7 @@ export default function PendenciasPage({ items, onToggle, onSave, onDelete, newI
         </div>
       )}
 
-      {items.length === 0 && (
+      {items.length === 0 && bookings.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
           <CheckCircle2 size={48} className="text-gray-200 mb-4" />
           <p className="text-sm font-medium">Sem pendências!</p>

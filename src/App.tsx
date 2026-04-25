@@ -1,5 +1,5 @@
 import { useState, Component, ReactNode } from 'react'
-import { X, Plus, Check, Map, Pencil, Trash2 } from 'lucide-react'
+import { X, Plus, Check, Pencil, Trash2 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -154,26 +154,6 @@ function TripBanner() {
   )
 }
 
-// ─── Trip Switcher FAB (bottom-left) ──────────────────────────────────────────
-function TripSwitcherFab({ trip, onClick }: { trip: Trip; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="fixed left-3 z-40 flex items-center gap-2 bg-white rounded-2xl pl-2.5 pr-3 py-2 shadow-lg border border-gray-100 active:scale-95 transition-transform"
-      style={{ bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
-    >
-      {/* Coloured dot matching trip gradient */}
-      <div
-        className="w-5 h-5 rounded-lg flex-shrink-0"
-        style={{ background: tripGradient(trip) }}
-      />
-      <span className="text-[11px] font-semibold text-gray-700 max-w-[110px] truncate leading-none">
-        {trip.title}
-      </span>
-      <Map size={12} className="text-gray-400 flex-shrink-0" />
-    </button>
-  )
-}
 
 // ─── Create Trip Modal ────────────────────────────────────────────────────────
 function CreateTripModal({
@@ -622,6 +602,7 @@ export default function App() {
             {tab === 'pendencias' && (
               <PendenciasPage
                 items={trip.pendingItems}
+                days={trip.days}
                 onToggle={togglePending}
                 onSave={savePendingItem}
                 onDelete={deletePendingItem}
@@ -632,10 +613,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* Trip switcher FAB — bottom-left, above nav */}
-      <TripSwitcherFab trip={trip} onClick={() => setShowTripMenu(true)} />
-
-      <BottomNav active={tab} onChange={setTab} pendingCount={pendingCount} />
+      <BottomNav
+        active={tab}
+        onChange={setTab}
+        pendingCount={pendingCount}
+        tripName={trip.title}
+        tripColor={tripGradient(trip).match(/#[0-9A-Fa-f]{6}/)?.[0]}
+        onTripTap={() => setShowTripMenu(true)}
+      />
     </ErrorBoundary>
   )
 }
