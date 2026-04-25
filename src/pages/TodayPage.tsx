@@ -13,13 +13,14 @@ import EditActivityModal from '../components/EditActivityModal'
 interface Props {
   trip: Trip
   todayDate: string
+  tripGradient?: string
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
   newActivity: (dayId: string) => Activity
 }
 
-export default function TodayPage({ trip, todayDate, onToggle, onSave, onDelete, newActivity }: Props) {
+export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onSave, onDelete, newActivity }: Props) {
   const [editing, setEditing] = useState<{ dayId: string; act: Activity; isNew: boolean } | null>(null)
 
   const todayDay = trip.days.find(d => d.date === todayDate)
@@ -90,7 +91,7 @@ export default function TodayPage({ trip, todayDate, onToggle, onSave, onDelete,
           {wError}
         </div>
       )}
-      {weather && <WeatherCard weather={weather} city={nearestDay.city} />}
+      {weather && <WeatherCard weather={weather} city={nearestDay.city} gradient={tripGradient} />}
 
       {/* Next step reminder */}
       <NextStepsCard days={trip.days} todayDate={todayDate} />

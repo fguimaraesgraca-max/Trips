@@ -681,6 +681,7 @@ export default function App() {
               <TodayPage
                 trip={trip}
                 todayDate={today}
+                tripGradient={tripGradient(trip)}
                 onToggle={toggleActivity}
                 onSave={saveActivity}
                 onDelete={deleteActivity}
