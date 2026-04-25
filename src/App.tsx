@@ -152,8 +152,11 @@ const STAMPS = [
 function TripBanner() {
   return (
     <div
-      className="w-full px-4 pt-4 pb-3 flex items-center justify-between gap-3"
-      style={{ background: 'linear-gradient(135deg,#1B4F72 0%,#0E3252 100%)' }}
+      className="w-full px-4 pb-3 flex items-center justify-between gap-3"
+      style={{
+        background: 'linear-gradient(135deg,#1B4F72 0%,#0E3252 100%)',
+        paddingTop: 'max(16px, env(safe-area-inset-top))',
+      }}
     >
       {/* Left: app identity */}
       <div className="flex-shrink-0">
