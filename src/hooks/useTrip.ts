@@ -12,7 +12,16 @@ interface AppState {
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return JSON.parse(raw) as AppState
+    if (raw) {
+      const state = JSON.parse(raw) as AppState
+      // Inject any new default trips not yet in this device's storage
+      const existingIds = new Set(state.trips.map(t => t.id))
+      const newTrips = defaultTrips.filter(t => !existingIds.has(t.id))
+      if (newTrips.length > 0) {
+        return { ...state, trips: [...state.trips, ...newTrips] }
+      }
+      return state
+    }
   } catch {}
   return { trips: defaultTrips, activeTripId: defaultTrips[0].id }
 }
