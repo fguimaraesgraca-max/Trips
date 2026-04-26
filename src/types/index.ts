@@ -67,10 +67,17 @@ export interface WeatherDay {
   precipitationProbability: number
 }
 
+export interface WeatherHour {
+  time: string      // "2026-04-26T14:00"
+  precipProb: number
+  precip: number    // mm
+}
+
 export interface WeatherData {
   city: string
   current: WeatherCurrent
   daily: WeatherDay[]
+  hourly: WeatherHour[]
 }
 
 export interface Tip {
