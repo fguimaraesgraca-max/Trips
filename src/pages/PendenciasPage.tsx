@@ -414,8 +414,8 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pendências</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-white">Pendências</h1>
+          <p className="text-sm text-white/60 mt-0.5">
             {pending.length} pendente{pending.length !== 1 ? 's' : ''}
             {done.length > 0 && ` · ${done.length} resolvida${done.length !== 1 ? 's' : ''}`}
           </p>
@@ -423,7 +423,7 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
         <div className="flex gap-2">
           <button
             onClick={() => setImporting(true)}
-            className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-sm font-medium shadow-sm"
+            className="flex items-center gap-1.5 bg-white/15 border border-white/20 text-white px-3 py-2 rounded-xl text-sm font-medium"
           >
             <Download size={15} /> Importar
           </button>
@@ -439,11 +439,11 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
       {/* Progress */}
       {items.length > 0 && (
         <div>
-          <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+          <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-400 rounded-full transition-all duration-500"
               style={{ width: `${(done.length / items.length) * 100}%` }} />
           </div>
-          <p className="text-xs text-gray-400 mt-1 text-right">{done.length}/{items.length} resolvidas</p>
+          <p className="text-xs text-white/50 mt-1 text-right">{done.length}/{items.length} resolvidas</p>
         </div>
       )}
 
@@ -461,7 +461,7 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
       {/* Done items */}
       {done.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Resolvidas ✓</p>
+          <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">Resolvidas ✓</p>
           {done.map(item => (
             <PendingCard key={item.id} item={item}
               onToggle={() => onToggle(item.id)}
@@ -472,10 +472,10 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
 
       {/* Empty state */}
       {items.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-          <CheckCircle2 size={44} className="text-gray-200 mb-4" />
+        <div className="flex flex-col items-center justify-center py-12 text-white/60">
+          <CheckCircle2 size={44} className="text-white/25 mb-4" />
           <p className="text-sm font-medium">Sem pendências!</p>
-          <p className="text-xs text-gray-400 mt-1 text-center max-w-xs">
+          <p className="text-xs text-white/50 mt-1 text-center max-w-xs">
             Crie itens manualmente ou use <strong>Importar</strong> para colar sua lista do roteiro
           </p>
         </div>
@@ -484,7 +484,7 @@ export default function PendenciasPage({ items, days = [], onToggle, onSave, onD
       {/* Booking reminders — only unadded items */}
       {unadded.length > 0 && (
         <div className="pt-2 space-y-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          <p className="text-xs font-semibold text-white/50 uppercase tracking-wide">
             Detectado no roteiro 🎫 <span className="normal-case font-normal">({unadded.length} para adicionar)</span>
           </p>
           {unadded.map((b, i) => (

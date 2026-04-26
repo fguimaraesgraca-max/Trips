@@ -129,8 +129,8 @@ export default function TipsPage({ trip }: Props) {
   return (
     <div className="px-4 py-4 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dicas de Viagem</h1>
-        <p className="text-sm text-gray-500 mt-1">Roteiro sugerido e recomendações por cidade</p>
+        <h1 className="text-2xl font-bold text-white">Dicas de Viagem</h1>
+        <p className="text-sm text-white/60 mt-1">Roteiro sugerido e recomendações por cidade</p>
       </div>
 
       {/* City pills */}
@@ -142,11 +142,11 @@ export default function TipsPage({ trip }: Props) {
               key={c}
               onClick={() => { setCity(c); setFilter('all') }}
               className={`flex-shrink-0 px-3 py-2 rounded-2xl text-xs font-semibold transition-colors ${
-                city === c ? 'bg-[#1B4F72] text-white' : 'bg-white text-gray-700 border border-gray-200'
+                city === c ? 'bg-white text-[#1B4F72]' : 'bg-white/15 text-white border border-white/20'
               }`}
             >
               {c}
-              <span className={`ml-1.5 text-[10px] ${city === c ? 'text-white/70' : 'text-gray-400'}`}>
+              <span className={`ml-1.5 text-[10px] ${city === c ? 'text-[#1B4F72]/60' : 'text-white/50'}`}>
                 {days}d
               </span>
             </button>
@@ -155,16 +155,16 @@ export default function TipsPage({ trip }: Props) {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+      <div className="flex bg-white/15 rounded-xl p-1 gap-1">
         <button
           onClick={() => setTab('program')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${tab === 'program' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${tab === 'program' ? 'bg-white text-[#1B4F72] shadow-sm' : 'text-white/70'}`}
         >
           <Calendar size={12} /> Roteiro sugerido
         </button>
         <button
           onClick={() => setTab('tips')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${tab === 'tips' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${tab === 'tips' ? 'bg-white text-[#1B4F72] shadow-sm' : 'text-white/70'}`}
         >
           <Star size={12} /> Dicas ({allTips.length})
         </button>

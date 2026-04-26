@@ -251,19 +251,19 @@ export default function ItineraryPage({
             onChange={e => setTitleVal(e.target.value)}
             onBlur={() => { onUpdateTitle(titleVal); setEditingTitle(false) }}
             onKeyDown={e => { if (e.key === 'Enter') { onUpdateTitle(titleVal); setEditingTitle(false) } }}
-            className="text-xl font-bold text-gray-900 bg-transparent border-b-2 border-[#1B4F72] outline-none flex-1"
+            className="text-xl font-bold text-white bg-transparent border-b-2 border-white/60 outline-none flex-1 placeholder-white/40"
           />
         ) : (
           <h1
             onClick={() => setEditingTitle(true)}
-            className="text-xl font-bold text-gray-900 flex-1 cursor-pointer active:opacity-70"
+            className="text-xl font-bold text-white flex-1 cursor-pointer active:opacity-70"
           >
             {trip.title}
           </h1>
         )}
       </div>
 
-      <p className="text-xs text-gray-400 -mt-2">Toque no título para editar</p>
+      <p className="text-xs text-white/50 -mt-2">Toque no título para editar</p>
 
       {/* Days */}
       {trip.days.map(day => (
