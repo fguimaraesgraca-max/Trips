@@ -53,11 +53,11 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
     <div className="px-4 py-4 space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{trip.title}</h1>
+        <h1 className="text-2xl font-bold text-white">{trip.title}</h1>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-sm text-gray-500 capitalize">{dateLabel} · {nearestDay.city}</p>
+          <p className="text-sm text-white/60 capitalize">{dateLabel} · {nearestDay.city}</p>
           {!isToday && (
-            <span className="text-xs bg-[#EAF2F8] text-[#1B4F72] px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-white/20 text-white px-2.5 py-1 rounded-full font-semibold backdrop-blur-sm">
               {isPast ? 'Passado' : 'Próxima etapa'}
             </span>
           )}
@@ -67,13 +67,13 @@ export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onS
       {/* Progress bar */}
       {totalCount > 0 && (
         <div>
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
+          <div className="flex justify-between text-xs text-white/60 mb-1">
             <span>{completedCount} de {totalCount} feitos</span>
             <span>{pct}%</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#1B4F72] rounded-full transition-all duration-500"
+              className="h-full bg-white rounded-full transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
