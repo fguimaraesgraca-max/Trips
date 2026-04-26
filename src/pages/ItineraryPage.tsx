@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Trip, Activity, Day } from '../types'
+import { Trip, Activity, Day, WeatherData } from '../types'
 import ActivityItem from '../components/ActivityItem'
 import EditActivityModal from '../components/EditActivityModal'
-import { useTripWeather, DayWeatherMap } from '../hooks/useWeather'
+import { RainDetailSheet } from '../components/WeatherCard'
+import { useTripWeather } from '../hooks/useWeather'
 import { getWeatherEmoji } from '../utils/weather'
 
 interface Props {
   trip: Trip
   todayDate: string
+  tripGradient?: string
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
@@ -18,7 +20,6 @@ interface Props {
   onAddDay: (date: string, city: string, country: string) => void
   newActivity: (dayId: string) => Activity
   onUpdateTitle: (title: string) => void
-  weatherMap?: DayWeatherMap
 }
 
 function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: string) => void; onClose: () => void }) {
@@ -90,6 +91,8 @@ function DayCard({
   onDeleteDay,
   newActivity,
   weather,
+  cityWeather,
+  tripGradient,
 }: {
   day: Day
   todayDate: string
@@ -99,108 +102,131 @@ function DayCard({
   onDeleteDay: () => void
   newActivity: () => Activity
   weather?: { min: number; max: number; code: number }
+  cityWeather?: WeatherData
+  tripGradient?: string
 }) {
   const isToday = day.date === todayDate
   const isPast = day.date < todayDate
   const [open, setOpen] = useState(!isPast || isToday)
   const [editing, setEditing] = useState<{ act: Activity; isNew: boolean } | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showRain, setShowRain] = useState(false)
 
   const done = day.activities.filter(a => a.done).length
   const total = day.activities.length
 
+  const gradient = tripGradient ?? 'linear-gradient(135deg,#1B4F72,#0E3252)'
+
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden ${isToday ? 'border-[#A8C4D8]' : 'border-gray-100'}`}>
-      {/* Day header */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-start justify-between px-4 py-3.5 text-left"
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            {isToday && <span className="text-xs bg-[#1B4F72] text-white px-2 py-0.5 rounded-full font-medium">Hoje</span>}
-            {isPast && !isToday && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Passado</span>}
-            <p className="text-sm font-semibold text-gray-900 capitalize truncate">
-              {format(parseISO(day.date), "EEEE, d 'de' MMMM", { locale: ptBR })}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <p className="text-xs text-gray-500">
-              {day.city}, {day.country}
-              {total > 0 && ` · ${done}/${total}`}
-            </p>
-            {weather && (
-              <span className="text-xs text-gray-500 flex items-center gap-0.5">
-                {getWeatherEmoji(weather.code)}
-                <span className="font-medium text-gray-700">{weather.max}°</span>
-                <span className="text-gray-400">/ {weather.min}°</span>
-              </span>
-            )}
-          </div>
-          {total > 0 && (
-            <div className="h-1 bg-gray-100 rounded-full mt-2 overflow-hidden w-32">
-              <div className="h-full bg-[#2A6B9A] rounded-full" style={{ width: `${(done / total) * 100}%` }} />
+    <>
+      <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden ${isToday ? 'border-[#A8C4D8]' : 'border-gray-100'}`}>
+        {/* Day header */}
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-start justify-between px-4 py-3.5 text-left"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {isToday && <span className="text-xs bg-[#1B4F72] text-white px-2 py-0.5 rounded-full font-medium">Hoje</span>}
+              {isPast && !isToday && <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Passado</span>}
+              <p className="text-sm font-semibold text-gray-900 capitalize truncate">
+                {format(parseISO(day.date), "EEEE, d 'de' MMMM", { locale: ptBR })}
+              </p>
             </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 ml-2 mt-0.5">
-          {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
-        </div>
-      </button>
-
-      {open && (
-        <>
-          <div className="divide-y divide-gray-50 px-4 border-t border-gray-50">
-            {day.activities.map(act => (
-              <ActivityItem
-                key={act.id}
-                activity={act}
-                onToggle={() => onToggle(act.id)}
-                onEdit={() => setEditing({ act, isNew: false })}
-              />
-            ))}
-            {day.activities.length === 0 && (
-              <p className="py-4 text-sm text-gray-400 text-center">Nenhuma atividade</p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <p className="text-xs text-gray-500">
+                {day.city}, {day.country}
+                {total > 0 && ` · ${done}/${total}`}
+              </p>
+              {weather && (
+                <button
+                  onClick={e => {
+                    e.stopPropagation()
+                    if (cityWeather) setShowRain(true)
+                  }}
+                  className={`text-xs text-gray-500 flex items-center gap-0.5 ${cityWeather ? 'active:opacity-60' : ''}`}
+                >
+                  {getWeatherEmoji(weather.code)}
+                  <span className="font-medium text-gray-700">{weather.max}°</span>
+                  <span className="text-gray-400">/ {weather.min}°</span>
+                  {cityWeather && <span className="text-[10px] text-blue-400 ml-0.5">🌧️</span>}
+                </button>
+              )}
+            </div>
+            {total > 0 && (
+              <div className="h-1 bg-gray-100 rounded-full mt-2 overflow-hidden w-32">
+                <div className="h-full bg-[#2A6B9A] rounded-full" style={{ width: `${(done / total) * 100}%` }} />
+              </div>
             )}
           </div>
-
-          <div className="flex gap-2 px-4 py-3 border-t border-gray-50">
-            <button
-              onClick={() => setEditing({ act: newActivity(), isNew: true })}
-              className="flex items-center gap-1.5 text-xs text-[#1B4F72] font-medium py-2 px-3 bg-[#EAF2F8] rounded-xl active:bg-indigo-100"
-            >
-              <Plus size={14} /> Atividade
-            </button>
-            <div className="flex-1" />
-            <button
-              onClick={() => { if (!confirmDelete) { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 3000) } else { onDeleteDay() } }}
-              className={`flex items-center gap-1.5 text-xs font-medium py-2 px-3 rounded-xl ${
-                confirmDelete ? 'bg-red-600 text-white' : 'text-red-400 active:bg-red-50'
-              }`}
-            >
-              <Trash2 size={14} />
-              {confirmDelete ? 'Confirmar exclusão' : 'Excluir dia'}
-            </button>
+          <div className="flex items-center gap-2 ml-2 mt-0.5">
+            {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
           </div>
-        </>
-      )}
+        </button>
 
-      {editing && (
-        <EditActivityModal
-          activity={editing.act}
-          isNew={editing.isNew}
-          onSave={onSave}
-          onDelete={() => onDelete(editing.act.id)}
-          onClose={() => setEditing(null)}
+        {open && (
+          <>
+            <div className="divide-y divide-gray-50 px-4 border-t border-gray-50">
+              {day.activities.map(act => (
+                <ActivityItem
+                  key={act.id}
+                  activity={act}
+                  onToggle={() => onToggle(act.id)}
+                  onEdit={() => setEditing({ act, isNew: false })}
+                />
+              ))}
+              {day.activities.length === 0 && (
+                <p className="py-4 text-sm text-gray-400 text-center">Nenhuma atividade</p>
+              )}
+            </div>
+
+            <div className="flex gap-2 px-4 py-3 border-t border-gray-50">
+              <button
+                onClick={() => setEditing({ act: newActivity(), isNew: true })}
+                className="flex items-center gap-1.5 text-xs text-[#1B4F72] font-medium py-2 px-3 bg-[#EAF2F8] rounded-xl active:bg-indigo-100"
+              >
+                <Plus size={14} /> Atividade
+              </button>
+              <div className="flex-1" />
+              <button
+                onClick={() => { if (!confirmDelete) { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 3000) } else { onDeleteDay() } }}
+                className={`flex items-center gap-1.5 text-xs font-medium py-2 px-3 rounded-xl ${
+                  confirmDelete ? 'bg-red-600 text-white' : 'text-red-400 active:bg-red-50'
+                }`}
+              >
+                <Trash2 size={14} />
+                {confirmDelete ? 'Confirmar exclusão' : 'Excluir dia'}
+              </button>
+            </div>
+          </>
+        )}
+
+        {editing && (
+          <EditActivityModal
+            activity={editing.act}
+            isNew={editing.isNew}
+            onSave={onSave}
+            onDelete={() => onDelete(editing.act.id)}
+            onClose={() => setEditing(null)}
+          />
+        )}
+      </div>
+
+      {showRain && cityWeather && (
+        <RainDetailSheet
+          weather={cityWeather}
+          gradient={gradient}
+          onClose={() => setShowRain(false)}
         />
       )}
-    </div>
+    </>
   )
 }
 
 export default function ItineraryPage({
   trip,
   todayDate,
+  tripGradient,
   onToggle,
   onSave,
   onDelete,
@@ -210,7 +236,7 @@ export default function ItineraryPage({
   onUpdateTitle,
 }: Props) {
   const [addingDay, setAddingDay] = useState(false)
-  const weatherMap = useTripWeather(trip.days)
+  const { dayMap, cityMap } = useTripWeather(trip.days)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(trip.title)
 
@@ -250,7 +276,9 @@ export default function ItineraryPage({
           onDelete={actId => onDelete(day.id, actId)}
           onDeleteDay={() => onDeleteDay(day.id)}
           newActivity={() => newActivity(day.id)}
-          weather={weatherMap[`${day.city}:${day.date}`]}
+          weather={dayMap[`${day.city}:${day.date}`]}
+          cityWeather={cityMap[day.city]}
+          tripGradient={tripGradient}
         />
       ))}
 

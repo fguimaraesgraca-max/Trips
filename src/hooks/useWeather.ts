@@ -58,6 +58,7 @@ async function fetchWeatherWithDays(city: string, forecastDays: number): Promise
 function fetchWeather(city: string) { return fetchWeatherWithDays(city, 5) }
 
 export type DayWeatherMap = Record<string, { min: number; max: number; code: number }>
+export type CityWeatherMap = Record<string, WeatherData>
 
 export function useWeather(city: string | null) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
@@ -76,8 +77,9 @@ export function useWeather(city: string | null) {
   return { weather, loading, error }
 }
 
-export function useTripWeather(days: { date: string; city: string }[]): DayWeatherMap {
-  const [map, setMap] = useState<DayWeatherMap>({})
+export function useTripWeather(days: { date: string; city: string }[]): { dayMap: DayWeatherMap; cityMap: CityWeatherMap } {
+  const [dayMap, setDayMap] = useState<DayWeatherMap>({})
+  const [cityMap, setCityMap] = useState<CityWeatherMap>({})
   const cityKey = [...new Set(days.map(d => d.city))].sort().join('|')
 
   useEffect(() => {
@@ -86,17 +88,18 @@ export function useTripWeather(days: { date: string; city: string }[]): DayWeath
     cities.forEach(city => {
       fetchWeatherWithDays(city, 16)
         .then(data => {
-          setMap(prev => {
+          setDayMap(prev => {
             const next = { ...prev }
             data.daily.forEach(d => {
               next[`${city}:${d.date}`] = { min: d.minTemp, max: d.maxTemp, code: d.weatherCode }
             })
             return next
           })
+          setCityMap(prev => ({ ...prev, [city]: data }))
         })
         .catch(() => {})
     })
   }, [cityKey])
 
-  return map
+  return { dayMap, cityMap }
 }

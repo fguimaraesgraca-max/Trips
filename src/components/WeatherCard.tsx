@@ -20,7 +20,7 @@ function rainColor(prob: number): string {
   return '#BFDBFE'                   // blue-200
 }
 
-function RainDetailSheet({
+export function RainDetailSheet({
   weather, gradient, onClose,
 }: {
   weather: WeatherData
