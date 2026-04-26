@@ -1,0 +1,175 @@
+{
+  "title": "Lençóis Maranhenses 2026",
+  "color": "#1BB8A9",
+  "pendingItems": [
+    {
+      "id": "p1",
+      "title": "Pagamento do pacote de passeios",
+      "dateNeeded": "Antes de 29/04",
+      "howTo": "À vista: R$ 3.957,00 | 50%+50%: R$ 2.060,00 agora | Parcelado: até 10x com acréscimo",
+      "responsible": "Patrícia",
+      "status": "pendente",
+      "priority": "critico",
+      "notes": "Valor total: R$ 4.120,00. À vista com desconto: R$ 3.957,00. Inclui todos os passeios de 29/04 a 07/05. Alimentação e hospedagem NÃO incluídos."
+    },
+    {
+      "id": "p2",
+      "title": "Transfer SLZ → Santo Amaro — confirmado",
+      "dateNeeded": "Qua 29/04 — 13h",
+      "howTo": "Incluído no pacote — confirmar ponto de embarque no aeroporto SLZ",
+      "responsible": "Patrícia",
+      "status": "feito",
+      "priority": "critico",
+      "notes": "R$ 300,00 — no pacote. Saída às 13h do aeroporto de São Luís. ~4h de viagem."
+    },
+    {
+      "id": "p3",
+      "title": "Mirar das Estrelas Privado — confirmado",
+      "dateNeeded": "Qui 30/04 — 19h às 22h",
+      "howTo": "Incluído no pacote — confirmar ponto de encontro com a operadora",
+      "responsible": "Patrícia",
+      "status": "feito",
+      "priority": "importante",
+      "notes": "R$ 1.097,00 — no pacote. Carro privado + cadeirinhas + água + mesa. Levar lanche se quiser."
+    },
+    {
+      "id": "p4",
+      "title": "Circuito Emendadas — calçado fechado",
+      "dateNeeded": "Sex 02/05 — 14h30",
+      "howTo": "Levar tênis ou sandália com boa aderência — caminhada de 1h20 nas dunas",
+      "responsible": "Filipe",
+      "status": "pendente",
+      "priority": "importante",
+      "notes": "⚠️ Caminhada de 1h20min nas dunas — calçado fechado obrigatório! R$ 414,00 no pacote."
+    },
+    {
+      "id": "p5",
+      "title": "Circuito Boia Cross — roupa de banho e protetor",
+      "dateNeeded": "Seg 05/05 — manhã",
+      "howTo": "Levar roupa de banho, protetor solar 50+ e câmera à prova d'água",
+      "responsible": "Filipe",
+      "status": "pendente",
+      "priority": "normal",
+      "notes": "R$ 260,00 — no pacote. Descida de boia em corredeiras do rio."
+    },
+    {
+      "id": "p6",
+      "title": "Transfer Barreirinhas → SLZ — confirmado",
+      "dateNeeded": "Qui 07/05 — 11h30",
+      "howTo": "Incluído no pacote — saída às 11h30 da pousada em Barreirinhas",
+      "responsible": "Patrícia",
+      "status": "feito",
+      "priority": "critico",
+      "notes": "R$ 240,00 — no pacote. ~5h de viagem. Saída 11h30 → chega SLZ ~16h30, voo às 18h45."
+    }
+  ],
+  "days": [
+    {
+      "id": "l-day-1",
+      "date": "2026-04-29",
+      "city": "Santo Amaro",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a1", "time": "00:40", "title": "Voo GRU → SLZ", "description": "LATAM LA3239", "location": "Aeroporto de Guarulhos (GRU)", "done": false, "type": "flight", "notes": "Voo de madrugada — dormir no avião! Check-in online 24h antes." },
+        { "id": "l-a2", "time": "04:05", "title": "Chegada em São Luís", "description": "Aeroporto Marechal Cunha Machado (SLZ)", "location": "São Luís, MA", "done": false, "type": "flight", "notes": "Descansar no aeroporto até o transfer das 13h." },
+        { "id": "l-a3", "time": "13:00", "title": "Transfer SLZ → Santo Amaro", "description": "Transfer compartilhado — R$ 300,00 (no pacote)", "location": "Aeroporto de São Luís → Santo Amaro, MA", "done": false, "type": "transport", "notes": "~4h de viagem. Saída às 13h do aeroporto." },
+        { "id": "l-a4", "time": "17:00", "title": "Check-in — Pousada em Santo Amaro", "description": "Acomodação em Santo Amaro (não inclusa no pacote)", "location": "Santo Amaro, MA", "done": false, "type": "hotel", "notes": "Descansar antes do jantar. Amanhã tem o Mirar das Estrelas às 19h." },
+        { "id": "l-a5", "time": "19:30", "title": "Jantar em Santo Amaro", "description": "Experimentar sururu, arroz de cuxá ou peixe fresco", "location": "Santo Amaro, MA", "done": false, "type": "food", "notes": "Alimentação não inclusa no pacote." }
+      ]
+    },
+    {
+      "id": "l-day-2",
+      "date": "2026-04-30",
+      "city": "Santo Amaro",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a6", "time": "08:00", "title": "Café da manhã", "description": "Manhã tranquila antes do passeio noturno", "location": "Pousada — Santo Amaro, MA", "done": false, "type": "hotel", "notes": "" },
+        { "id": "l-a7", "time": "09:30", "title": "Explorar Santo Amaro", "description": "Vila histórica, lagoas próximas e mercado local", "location": "Santo Amaro, MA", "done": false, "type": "attraction", "notes": "Conhecer o vilarejo com calma — levar chapéu e protetor solar." },
+        { "id": "l-a8", "time": "13:00", "title": "Almoço", "description": "Culinária maranhense local", "location": "Santo Amaro, MA", "done": false, "type": "food", "notes": "" },
+        { "id": "l-a9", "time": "15:00", "title": "Tarde livre — descanso", "description": "Relaxar antes do passeio noturno", "location": "Pousada — Santo Amaro, MA", "done": false, "type": "hotel", "notes": "Guardar energia para o Mirar das Estrelas das 19h." },
+        { "id": "l-a10", "time": "19:00", "title": "⭐ Mirar das Estrelas — Privado", "description": "19h às 22h — R$ 1.097,00 (no pacote)", "location": "Dunas dos Lençóis Maranhenses", "done": false, "type": "attraction", "notes": "Carro privado + cadeirinhas + água + mesa. Levar lanche se quiser. Experiência única nas dunas!" }
+      ]
+    },
+    {
+      "id": "l-day-3",
+      "date": "2026-05-01",
+      "city": "Santo Amaro",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a11", "time": "07:00", "title": "Café da manhã cedo", "description": "Circuito é de manhã — sair cedo", "location": "Pousada — Santo Amaro, MA", "done": false, "type": "hotel", "notes": "Levar protetor solar 50+, chapéu, óculos e sandália de borracha." },
+        { "id": "l-a12", "time": "08:00", "title": "🏖️ Circuito América", "description": "Manhã — R$ 334,00 (no pacote)", "location": "Lençóis Maranhenses — Circuito América", "done": false, "type": "attraction", "notes": "Passeio compartilhado pela manhã pelas lagoas do Circuito América. Levar câmera!" },
+        { "id": "l-a13", "time": "13:00", "title": "Almoço", "description": "Refeição após o passeio da manhã", "location": "Santo Amaro, MA", "done": false, "type": "food", "notes": "" },
+        { "id": "l-a14", "time": "15:00", "title": "Tarde livre", "description": "Descanso, piscina ou explorar a vila", "location": "Santo Amaro, MA", "done": false, "type": "attraction", "notes": "Amanhã tem caminhada de 1h20 nas dunas — poupar energia!" }
+      ]
+    },
+    {
+      "id": "l-day-4",
+      "date": "2026-05-02",
+      "city": "Santo Amaro",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a15", "time": "09:00", "title": "Manhã livre — descanso", "description": "Guardar energia para a caminhada de 1h20 da tarde", "location": "Pousada — Santo Amaro, MA", "done": false, "type": "hotel", "notes": "⚠️ Circuito Emendadas tem 1h20 de caminhada nas dunas — usar calçado fechado!" },
+        { "id": "l-a16", "time": "12:00", "title": "Almoço", "description": "Comer bem antes da caminhada da tarde", "location": "Santo Amaro, MA", "done": false, "type": "food", "notes": "" },
+        { "id": "l-a17", "time": "14:30", "title": "🌅 Circuito Emendadas", "description": "14h30 ao pôr do sol — R$ 414,00 (no pacote)", "location": "Lagoa das Emendadas, Lençóis Maranhenses", "done": false, "type": "attraction", "notes": "⚠️ Caminhada de 1h20min nas dunas — calçado fechado obrigatório! Passeio compartilhado até o pôr do sol." }
+      ]
+    },
+    {
+      "id": "l-day-5",
+      "date": "2026-05-03",
+      "city": "Barreirinhas",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a18", "time": "07:00", "title": "Check-out — Pousada Santo Amaro", "description": "Hoje muda para Barreirinhas ao final do passeio", "location": "Pousada — Santo Amaro, MA", "done": false, "type": "hotel", "notes": "Ao fim do Circuito Betânia o grupo é deixado em Barreirinhas — não voltar para Santo Amaro!" },
+        { "id": "l-a19", "time": "08:00", "title": "🚤 Circuito Betânia", "description": "Dia todo — R$ 554,00 (no pacote)", "location": "Betânia — Rio Preguiças, MA", "done": false, "type": "attraction", "notes": "Passeio compartilhado dia inteiro. Termina em Barreirinhas — confirmar horário de chegada com a operadora." },
+        { "id": "l-a20", "time": "18:30", "title": "Check-in — Pousada em Barreirinhas", "description": "Acomodação em Barreirinhas (não inclusa no pacote)", "location": "Barreirinhas, MA", "done": false, "type": "hotel", "notes": "Verificar horário de chegada do passeio com a operadora." }
+      ]
+    },
+    {
+      "id": "l-day-6",
+      "date": "2026-05-04",
+      "city": "Barreirinhas",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a21", "time": "07:30", "title": "Café da manhã", "description": "Dia inteiro fora — levar roupa de banho, protetor e câmera", "location": "Pousada — Barreirinhas, MA", "done": false, "type": "hotel", "notes": "" },
+        { "id": "l-a22", "time": "08:00", "title": "🏖️🏍️ Combo Caburé + Quadriciclo", "description": "Dia todo — R$ 647,00 (no pacote)", "location": "Caburé — foz do Rio Preguiças, MA", "done": false, "type": "attraction", "notes": "Visita a Caburé (vila na foz entre mar e rio) + quadriciclo nas dunas. Passeio compartilhado dia inteiro!" },
+        { "id": "l-a23", "time": "19:00", "title": "Jantar em Barreirinhas", "description": "Descanso após dia intenso", "location": "Barreirinhas, MA", "done": false, "type": "food", "notes": "" }
+      ]
+    },
+    {
+      "id": "l-day-7",
+      "date": "2026-05-05",
+      "city": "Barreirinhas",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a24", "time": "07:00", "title": "Café da manhã cedo", "description": "Boia Cross é de manhã — sair cedo", "location": "Pousada — Barreirinhas, MA", "done": false, "type": "hotel", "notes": "Levar roupa de banho, protetor solar e câmera à prova d'água." },
+        { "id": "l-a25", "time": "08:00", "title": "🌊 Circuito Boia Cross", "description": "Manhã — R$ 260,00 (no pacote)", "location": "Rio Preguiças — Lençóis Maranhenses", "done": false, "type": "attraction", "notes": "Descida de boia pelas corredeiras do Rio Preguiças. Passeio compartilhado. Levar roupa de banho!" },
+        { "id": "l-a26", "time": "12:30", "title": "Almoço", "description": "Refeição entre os dois circuitos", "location": "Barreirinhas, MA", "done": false, "type": "food", "notes": "Aproveitar a orla do Rio Preguiças." },
+        { "id": "l-a27", "time": "14:00", "title": "🌅 Circuito Lagoa Bonita", "description": "14h ao pôr do sol — R$ 274,00 (no pacote)", "location": "Lagoa Bonita, Lençóis Maranhenses", "done": false, "type": "attraction", "notes": "A lagoa mais famosa dos Lençóis — pôr do sol é de tirar o fôlego. Levar câmera!" }
+      ]
+    },
+    {
+      "id": "l-day-8",
+      "date": "2026-05-06",
+      "city": "Barreirinhas",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a28", "time": "08:00", "title": "Café da manhã com calma", "description": "Dia livre — sem passeios obrigatórios", "location": "Pousada — Barreirinhas, MA", "done": false, "type": "hotel", "notes": "Último dia completo — aproveitar no próprio ritmo." },
+        { "id": "l-a29", "time": "10:00", "title": "Orla do Rio Preguiças — passeio livre", "description": "Explorar Barreirinhas, artesanato local, sorvete de cupuaçu", "location": "Barreirinhas, MA", "done": false, "type": "attraction", "notes": "Opcional: barco avulso para Mandacaru ou Atins (contratar no porto)." },
+        { "id": "l-a30", "time": "12:30", "title": "Almoço", "description": "Restaurante à beira do rio", "location": "Barreirinhas, MA", "done": false, "type": "food", "notes": "Experimentar peixe do Rio Preguiças." },
+        { "id": "l-a31", "time": "15:00", "title": "Tarde livre — relaxar", "description": "Piscina, spa ou descanso antes da viagem de volta", "location": "Pousada — Barreirinhas, MA", "done": false, "type": "hotel", "notes": "Preparar malas — transfer parte às 11h30 amanhã." }
+      ]
+    },
+    {
+      "id": "l-day-9",
+      "date": "2026-05-07",
+      "city": "Barreirinhas",
+      "country": "Brasil",
+      "activities": [
+        { "id": "l-a32", "time": "07:00", "title": "Café da manhã e check-out", "description": "Malas prontas antes das 11h", "location": "Pousada — Barreirinhas, MA", "done": false, "type": "hotel", "notes": "" },
+        { "id": "l-a33", "time": "11:30", "title": "🚗 Transfer Barreirinhas → São Luís", "description": "R$ 240,00 (no pacote)", "location": "Barreirinhas → Aeroporto SLZ", "done": false, "type": "transport", "notes": "~5h de viagem. Saída 11h30 → chega SLZ ~16h30, com margem para o voo das 18h45." },
+        { "id": "l-a34", "time": "18:45", "title": "Voo SLZ → GRU", "description": "LATAM LA3613", "location": "Aeroporto Marechal Cunha Machado (SLZ)", "done": false, "type": "flight", "notes": "Check-in online 24h antes. Chegar no aeroporto ~17h." },
+        { "id": "l-a35", "time": "22:15", "title": "Chegada em Guarulhos 🏠", "description": "Fim da viagem", "location": "Aeroporto de Guarulhos (GRU)", "done": false, "type": "flight", "notes": "Que viagem incrível! 🌊🌅" }
+      ]
+    }
+  ]
+}
