@@ -862,11 +862,12 @@ export default function App() {
 
       <BottomNav
         active={tab}
-        onChange={setTab}
+        onChange={t => {
+          if (t === 'viagens') { setShowTripMenu(true); return }
+          setTab(t)
+        }}
         pendingCount={pendingCount}
-        tripName={trip.title}
         tripColor={tripGradient(trip).match(/#[0-9A-Fa-f]{6}/)?.[0]}
-        onTripTap={() => setShowTripMenu(true)}
       />
     </ErrorBoundary>
   )
