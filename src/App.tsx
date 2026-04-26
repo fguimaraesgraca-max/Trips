@@ -1,5 +1,5 @@
 import { useState, Component, ReactNode } from 'react'
-import { X, Plus, Check, Pencil, Trash2 } from 'lucide-react'
+import { X, Plus, Check, Pencil, Trash2, Share2, Upload } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -382,6 +382,22 @@ function EditTripModal({
     onClose()
   }
 
+  function handleExport() {
+    const { id: _id, ...data } = trip
+    const json = JSON.stringify(data, null, 2)
+    if (navigator.share) {
+      navigator.share({ title: `Viaticum — ${trip.title}`, text: json }).catch(() => {})
+    } else {
+      const blob = new Blob([json], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${trip.title.replace(/\s+/g, '_')}.viaticum.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+  }
+
   const inputCls =
     'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white'
   const labelCls = 'text-xs font-semibold text-gray-500 uppercase tracking-wide'
@@ -464,6 +480,12 @@ function EditTripModal({
           >
             Salvar
           </button>
+          <button
+            onClick={handleExport}
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 py-3.5 rounded-2xl text-base font-semibold"
+          >
+            <Share2 size={18} /> Exportar viagem
+          </button>
           {canDelete && (
             <button
               onClick={handleDelete}
@@ -483,6 +505,102 @@ function EditTripModal({
   )
 }
 
+// ─── Import Trip Modal ────────────────────────────────────────────────────────
+function ImportTripModal({
+  onImport,
+  onClose,
+}: {
+  onImport: (data: Omit<Trip, 'id'>) => void
+  onClose: () => void
+}) {
+  const [text, setText] = useState('')
+  const [error, setError] = useState('')
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => setText(ev.target?.result as string ?? '')
+    reader.readAsText(file)
+  }
+
+  function handleImport() {
+    setError('')
+    try {
+      const data = JSON.parse(text)
+      if (!data.title || !Array.isArray(data.days)) {
+        setError('Arquivo inválido — campos obrigatórios ausentes.')
+        return
+      }
+      onImport({ ...data, pendingItems: data.pendingItems ?? [] })
+      onClose()
+    } catch {
+      setError('JSON inválido. Copie o conteúdo completo do arquivo exportado.')
+    }
+  }
+
+  const preview = (() => {
+    try {
+      const d = JSON.parse(text)
+      if (d.title && Array.isArray(d.days)) return `${d.title} · ${d.days.length} dia${d.days.length !== 1 ? 's' : ''}`
+    } catch {}
+    return null
+  })()
+
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-t-3xl max-h-[90vh] flex flex-col" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100 flex-shrink-0">
+          <h2 className="text-lg font-bold text-gray-900">Importar viagem</h2>
+          <button onClick={onClose}><X size={20} className="text-gray-400" /></button>
+        </div>
+        <div className="px-5 py-5 space-y-4 overflow-y-auto flex-1">
+          <p className="text-sm text-gray-500">
+            Cole abaixo o texto exportado de outro dispositivo, ou selecione o arquivo <code className="text-xs bg-gray-100 px-1 rounded">.viaticum.json</code>.
+          </p>
+
+          {/* File picker */}
+          <label className="flex items-center gap-2 w-full border border-dashed border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-500 cursor-pointer active:bg-gray-50">
+            <Upload size={16} />
+            <span>Selecionar arquivo</span>
+            <input type="file" accept=".json,application/json" className="hidden" onChange={handleFile} />
+          </label>
+
+          <div className="text-xs text-center text-gray-400">ou cole o texto abaixo</div>
+
+          <textarea
+            value={text}
+            onChange={e => { setText(e.target.value); setError('') }}
+            placeholder='{"title":"Eurotrip","days":[...],"pendingItems":[...]}'
+            rows={7}
+            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none"
+          />
+
+          {preview && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-lg">✅</span>
+              <p className="text-sm font-semibold text-emerald-800">{preview}</p>
+            </div>
+          )}
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
+          )}
+        </div>
+        <div className="px-5 pb-6 pt-3 flex-shrink-0 border-t border-gray-100">
+          <button
+            onClick={handleImport}
+            disabled={!preview}
+            className="w-full bg-[#1B4F72] text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+          >
+            Importar viagem
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Trip Menu (full-screen) ──────────────────────────────────────────────────
 function TripMenu({
   trips,
@@ -491,6 +609,7 @@ function TripMenu({
   onClose,
   onCreateTrip,
   onCreateTripWithDays,
+  onImportTrip,
   onUpdateTrip,
   onDeleteTrip,
 }: {
@@ -500,10 +619,12 @@ function TripMenu({
   onClose: () => void
   onCreateTrip: (title: string, city: string, country: string, date: string) => void
   onCreateTripWithDays: (title: string, days: Day[], pendingItems: PendingItem[]) => void
+  onImportTrip: (data: Omit<Trip, 'id'>) => void
   onUpdateTrip: (id: string, title: string, color?: string) => void
   onDeleteTrip: (id: string) => void
 }) {
   const [creating, setCreating] = useState(false)
+  const [importing, setImporting] = useState(false)
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null)
 
   return (
@@ -574,16 +695,27 @@ function TripMenu({
             )
           })}
 
-          {/* Add trip */}
-          <button
-            onClick={() => setCreating(true)}
-            className="w-full border-2 border-dashed border-gray-300 rounded-3xl py-6 flex flex-col items-center gap-2 text-gray-400 active:border-[#2A6B9A] active:text-[#1B4F72] transition-colors"
-          >
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-              <Plus size={22} />
-            </div>
-            <span className="text-sm font-semibold">Adicionar nova viagem</span>
-          </button>
+          {/* Add / Import trip */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setCreating(true)}
+              className="flex-1 border-2 border-dashed border-white/30 rounded-3xl py-5 flex flex-col items-center gap-2 text-white/60 active:border-white/60 active:text-white transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <Plus size={20} />
+              </div>
+              <span className="text-xs font-semibold">Nova viagem</span>
+            </button>
+            <button
+              onClick={() => setImporting(true)}
+              className="flex-1 border-2 border-dashed border-white/30 rounded-3xl py-5 flex flex-col items-center gap-2 text-white/60 active:border-white/60 active:text-white transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <Upload size={20} />
+              </div>
+              <span className="text-xs font-semibold">Importar</span>
+            </button>
+          </div>
           <div className="h-6" />
         </div>
       </div>
@@ -599,6 +731,13 @@ function TripMenu({
             onCreateTripWithDays(title, days, pendingItems)
             onClose()
           }}
+        />
+      )}
+
+      {importing && (
+        <ImportTripModal
+          onImport={data => { onImportTrip(data); onClose() }}
+          onClose={() => setImporting(false)}
         />
       )}
 
@@ -643,6 +782,7 @@ export default function App() {
     createTripWithDays,
     updateTripMeta,
     deleteTrip,
+    importTrip,
   } = useTrip()
 
   const today = todayISO()
@@ -669,6 +809,7 @@ export default function App() {
           onClose={() => setShowTripMenu(false)}
           onCreateTrip={createTrip}
           onCreateTripWithDays={createTripWithDays}
+          onImportTrip={importTrip}
           onUpdateTrip={updateTripMeta}
           onDeleteTrip={deleteTrip}
         />

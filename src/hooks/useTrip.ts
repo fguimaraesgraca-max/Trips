@@ -184,6 +184,14 @@ export function useTrip() {
     })
   }, [])
 
+  const importTrip = useCallback((data: Omit<Trip, 'id'>) => {
+    const id = nanoid()
+    setState(s => ({
+      trips: [...s.trips, { ...data, id }],
+      activeTripId: id,
+    }))
+  }, [])
+
   return {
     trips: state.trips,
     activeTripId: state.activeTripId,
@@ -204,5 +212,6 @@ export function useTrip() {
     createTripWithDays,
     updateTripMeta,
     deleteTrip,
+    importTrip,
   }
 }
