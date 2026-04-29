@@ -79,6 +79,26 @@ export const lencoisTrip: Trip = {
       country: 'Brasil',
       activities: [
         {
+          id: 'l-a1',
+          time: '00:49',
+          title: 'Voo GRU → SLZ — LA3239',
+          description: 'LATAM Airlines · Economy · Assento 13A',
+          location: 'Aeroporto de Guarulhos (GRU) — Terminal 2, Portão 211',
+          done: false,
+          type: 'flight',
+          notes: 'Embarque 23h59 (noite do dia 28/04) · Fechamento do portão 00h10 · Grupo 1 · Assento 13A.',
+        },
+        {
+          id: 'l-a2',
+          time: '04:08',
+          title: 'Chegada em São Luís (SLZ)',
+          description: 'Aeroporto Marechal Cunha Machado — aguardar transfer das 13h',
+          location: 'São Luís, MA',
+          done: false,
+          type: 'flight',
+          notes: '~9h até o transfer das 13h. Descansar no aeroporto ou lanchonete.',
+        },
+        {
           id: 'l-a3',
           time: '13:00',
           title: 'Transfer SLZ → Santo Amaro',
