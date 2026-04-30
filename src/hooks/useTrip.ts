@@ -201,6 +201,16 @@ export function useTrip() {
     }))
   }, [])
 
+  const reorderTrips = useCallback((ids: string[]) => {
+    setState(s => {
+      const order = new Map(ids.map((id, i) => [id, i]))
+      return {
+        ...s,
+        trips: [...s.trips].sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999)),
+      }
+    })
+  }, [])
+
   return {
     trips: state.trips,
     activeTripId: state.activeTripId,
@@ -222,5 +232,6 @@ export function useTrip() {
     updateTripMeta,
     deleteTrip,
     importTrip,
+    reorderTrips,
   }
 }

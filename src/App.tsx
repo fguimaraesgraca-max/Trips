@@ -1,5 +1,5 @@
-import { useState, Component, ReactNode } from 'react'
-import { X, Plus, Check, Pencil, Trash2, Share2, Upload } from 'lucide-react'
+import { useState, useRef, useEffect, Component, ReactNode } from 'react'
+import { X, Plus, Check, Pencil, Trash2, Share2, Upload, GripVertical } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -602,6 +602,13 @@ function ImportTripModal({
 }
 
 // ─── Trip Menu (full-screen) ──────────────────────────────────────────────────
+function reinsert<T>(arr: T[], from: number, to: number): T[] {
+  const r = [...arr]
+  const [item] = r.splice(from, 1)
+  r.splice(to, 0, item)
+  return r
+}
+
 function TripMenu({
   trips,
   activeId,
@@ -612,6 +619,7 @@ function TripMenu({
   onImportTrip,
   onUpdateTrip,
   onDeleteTrip,
+  onReorder,
 }: {
   trips: Trip[]
   activeId: string
@@ -622,10 +630,62 @@ function TripMenu({
   onImportTrip: (data: Omit<Trip, 'id'>) => void
   onUpdateTrip: (id: string, title: string, color?: string) => void
   onDeleteTrip: (id: string) => void
+  onReorder: (ids: string[]) => void
 }) {
   const [creating, setCreating] = useState(false)
   const [importing, setImporting] = useState(false)
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null)
+
+  // Drag-to-reorder state
+  const [orderedTrips, setOrderedTrips] = useState(trips)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const dragRef = useRef<{ startY: number; fromIndex: number } | null>(null)
+
+  // Keep local order in sync when trips prop changes (add/delete)
+  useEffect(() => {
+    setOrderedTrips(prev => {
+      const prevIds = new Set(prev.map(t => t.id))
+      const newTrips = trips.filter(t => !prevIds.has(t.id))
+      const updated = prev
+        .filter(p => trips.some(t => t.id === p.id))
+        .map(p => trips.find(t => t.id === p.id)!)
+      return [...updated, ...newTrips]
+    })
+  }, [trips])
+
+  const displayTrips = draggingId !== null && dragOverIndex !== null
+    ? reinsert(orderedTrips, orderedTrips.findIndex(t => t.id === draggingId), dragOverIndex)
+    : orderedTrips
+
+  function handleGripTouchStart(e: React.TouchEvent, id: string, index: number) {
+    e.stopPropagation()
+    dragRef.current = { startY: e.touches[0].clientY, fromIndex: index }
+    setDraggingId(id)
+    setDragOverIndex(index)
+  }
+
+  function handleListTouchMove(e: React.TouchEvent) {
+    if (!dragRef.current || draggingId === null) return
+    const dy = e.touches[0].clientY - dragRef.current.startY
+    const CARD_H = 182
+    const rawIndex = dragRef.current.fromIndex + Math.round(dy / CARD_H)
+    setDragOverIndex(Math.max(0, Math.min(orderedTrips.length - 1, rawIndex)))
+  }
+
+  function handleListTouchEnd() {
+    if (dragRef.current && draggingId !== null && dragOverIndex !== null) {
+      const from = dragRef.current.fromIndex
+      if (from !== dragOverIndex) {
+        const next = reinsert(orderedTrips, from, dragOverIndex)
+        setOrderedTrips(next)
+        onReorder(next.map(t => t.id))
+      }
+    }
+    setDraggingId(null)
+    setDragOverIndex(null)
+    dragRef.current = null
+  }
 
   return (
     <>
@@ -647,18 +707,27 @@ function TripMenu({
         </div>
 
         {/* Trip cards */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-          {trips.map(t => {
+        <div
+          className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+          onTouchMove={handleListTouchMove}
+          onTouchEnd={handleListTouchEnd}
+        >
+          {displayTrips.map((t, idx) => {
             const isActive = t.id === activeId
+            const isDragging = t.id === draggingId
             const pending = t.pendingItems.filter(p => p.status === 'pendente').length
             return (
               <div
                 key={t.id}
-                className="w-full rounded-3xl overflow-hidden shadow-md"
+                className="w-full rounded-3xl overflow-hidden shadow-md transition-all duration-150"
+                style={{
+                  opacity: isDragging ? 0.6 : 1,
+                  transform: isDragging ? 'scale(0.97)' : 'scale(1)',
+                }}
               >
                 {/* Gradient top — tap to activate */}
                 <button
-                  onClick={() => { onChange(t.id); onClose() }}
+                  onClick={() => { if (!dragRef.current) { onChange(t.id); onClose() } }}
                   className="w-full text-left px-5 pt-5 pb-4 flex items-start justify-between active:opacity-80 transition-opacity"
                   style={{ background: tripGradient(t) }}
                 >
@@ -678,18 +747,28 @@ function TripMenu({
                   )}
                 </button>
 
-                {/* White footer — status + edit button */}
-                <div className="bg-white px-5 py-3 flex items-center justify-between">
+                {/* White footer — status + drag handle + edit button */}
+                <div className="bg-white px-4 py-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${isActive ? 'text-[#1B4F72]' : 'text-gray-400'}`}>
                     {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
                   </span>
-                  <button
-                    onClick={e => { e.stopPropagation(); setEditingTrip(t) }}
-                    className="flex items-center gap-1.5 text-gray-500 hover:text-[#1B4F72] active:scale-90 transition-transform px-2 py-1"
-                  >
-                    <Pencil size={14} />
-                    <span className="text-xs font-semibold">Editar</span>
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {/* Drag handle */}
+                    <div
+                      style={{ touchAction: 'none' }}
+                      onTouchStart={e => handleGripTouchStart(e, t.id, idx)}
+                      className="p-2 text-gray-300 active:text-gray-500 cursor-grab"
+                    >
+                      <GripVertical size={16} />
+                    </div>
+                    <button
+                      onClick={e => { e.stopPropagation(); setEditingTrip(t) }}
+                      className="flex items-center gap-1.5 text-gray-500 hover:text-[#1B4F72] active:scale-90 transition-transform px-2 py-1"
+                    >
+                      <Pencil size={14} />
+                      <span className="text-xs font-semibold">Editar</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )
@@ -783,6 +862,7 @@ export default function App() {
     updateTripMeta,
     deleteTrip,
     importTrip,
+    reorderTrips,
   } = useTrip()
 
   const today = todayISO()
@@ -812,6 +892,7 @@ export default function App() {
           onImportTrip={importTrip}
           onUpdateTrip={updateTripMeta}
           onDeleteTrip={deleteTrip}
+          onReorder={reorderTrips}
         />
       )}
 
