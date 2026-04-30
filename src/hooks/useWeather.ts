@@ -22,7 +22,7 @@ async function fetchWeatherWithDays(city: string, forecastDays: number): Promise
     longitude: String(lon),
     current: 'temperature_2m,weathercode,windspeed_10m,relativehumidity_2m',
     daily: 'temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max',
-    hourly: 'precipitation_probability,precipitation',
+    hourly: 'precipitation_probability,precipitation,cloudcover',
     timezone: 'auto',
     forecast_days: String(forecastDays),
   })
@@ -48,6 +48,7 @@ async function fetchWeatherWithDays(city: string, forecastDays: number): Promise
       time,
       precipProb: w.hourly.precipitation_probability[i] ?? 0,
       precip: Math.round((w.hourly.precipitation[i] ?? 0) * 10) / 10,
+      cloudcover: w.hourly.cloudcover[i] ?? 0,
     })),
   }
 

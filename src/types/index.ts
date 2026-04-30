@@ -71,6 +71,7 @@ export interface WeatherHour {
   time: string      // "2026-04-26T14:00"
   precipProb: number
   precip: number    // mm
+  cloudcover: number // 0–100 %
 }
 
 export interface WeatherData {

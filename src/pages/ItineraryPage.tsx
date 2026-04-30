@@ -9,6 +9,24 @@ import { RainDetailSheet } from '../components/WeatherCard'
 import { useTripWeather } from '../hooks/useWeather'
 import { getWeatherEmoji } from '../utils/weather'
 
+// Returns avg cloud cover for hours 18–23 of a given date (0–100), or null if no data
+function nightCloudCover(cityWeather: WeatherData | undefined, date: string): number | null {
+  if (!cityWeather) return null
+  const hours = cityWeather.hourly.filter(h => {
+    if (!h.time.startsWith(date)) return false
+    const hh = parseInt(h.time.slice(11, 13), 10)
+    return hh >= 18 && hh <= 23
+  })
+  if (!hours.length) return null
+  return Math.round(hours.reduce((s, h) => s + h.cloudcover, 0) / hours.length)
+}
+
+function nightSkyLabel(cover: number): { emoji: string; label: string; color: string } {
+  if (cover <= 25) return { emoji: '🌙', label: 'limpo', color: 'text-indigo-400' }
+  if (cover <= 60) return { emoji: '🌙', label: `${cover}%☁`, color: 'text-gray-400' }
+  return { emoji: '☁️', label: 'nublado', color: 'text-gray-400' }
+}
+
 interface Props {
   trip: Trip
   todayDate: string
@@ -152,6 +170,17 @@ function DayCard({
                   {cityWeather && <span className="text-[10px] text-blue-400 ml-0.5">🌧️</span>}
                 </button>
               )}
+              {(() => {
+                const cover = nightCloudCover(cityWeather, day.date)
+                if (cover === null) return null
+                const sky = nightSkyLabel(cover)
+                return (
+                  <span className={`text-[10px] flex items-center gap-0.5 ${sky.color}`}>
+                    {sky.emoji}
+                    <span>{sky.label}</span>
+                  </span>
+                )
+              })()}
             </div>
             {total > 0 && (
               <div className="h-1 bg-gray-100 rounded-full mt-2 overflow-hidden w-32">
