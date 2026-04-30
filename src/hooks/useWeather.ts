@@ -61,7 +61,11 @@ function fetchWeather(city: string) { return fetchWeatherWithDays(city, 5) }
 export type DayWeatherMap = Record<string, { min: number; max: number; code: number }>
 export type CityWeatherMap = Record<string, WeatherData>
 
-export function useWeather(city: string | null) {
+export function clearWeatherCache() {
+  for (const k in cache) delete cache[k]
+}
+
+export function useWeather(city: string | null, refreshKey = 0) {
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,12 +77,12 @@ export function useWeather(city: string | null) {
     fetchWeather(city)
       .then(d => { setWeather(d); setLoading(false) })
       .catch(() => { setError('Não foi possível carregar o clima'); setLoading(false) })
-  }, [city])
+  }, [city, refreshKey])
 
   return { weather, loading, error }
 }
 
-export function useTripWeather(days: { date: string; city: string }[]): { dayMap: DayWeatherMap; cityMap: CityWeatherMap } {
+export function useTripWeather(days: { date: string; city: string }[], refreshKey = 0): { dayMap: DayWeatherMap; cityMap: CityWeatherMap } {
   const [dayMap, setDayMap] = useState<DayWeatherMap>({})
   const [cityMap, setCityMap] = useState<CityWeatherMap>({})
   const cityKey = [...new Set(days.map(d => d.city))].sort().join('|')
@@ -100,7 +104,7 @@ export function useTripWeather(days: { date: string; city: string }[]): { dayMap
         })
         .catch(() => {})
     })
-  }, [cityKey])
+  }, [cityKey, refreshKey])
 
   return { dayMap, cityMap }
 }

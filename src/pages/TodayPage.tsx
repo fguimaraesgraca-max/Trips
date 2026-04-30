@@ -14,19 +14,20 @@ interface Props {
   trip: Trip
   todayDate: string
   tripGradient?: string
+  refreshKey?: number
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
   newActivity: (dayId: string) => Activity
 }
 
-export default function TodayPage({ trip, todayDate, tripGradient, onToggle, onSave, onDelete, newActivity }: Props) {
+export default function TodayPage({ trip, todayDate, tripGradient, refreshKey = 0, onToggle, onSave, onDelete, newActivity }: Props) {
   const [editing, setEditing] = useState<{ dayId: string; act: Activity; isNew: boolean } | null>(null)
 
   const todayDay = trip.days.find(d => d.date === todayDate)
   const nearestDay = todayDay ?? trip.days.find(d => d.date >= todayDate) ?? trip.days[0]
 
-  const { weather, loading: wLoading, error: wError } = useWeather(nearestDay?.city ?? null)
+  const { weather, loading: wLoading, error: wError } = useWeather(nearestDay?.city ?? null, refreshKey)
 
   const completedCount = nearestDay?.activities.filter(a => a.done).length ?? 0
   const totalCount = nearestDay?.activities.length ?? 0

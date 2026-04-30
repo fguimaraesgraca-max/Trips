@@ -31,6 +31,7 @@ interface Props {
   trip: Trip
   todayDate: string
   tripGradient?: string
+  refreshKey?: number
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
@@ -256,6 +257,7 @@ export default function ItineraryPage({
   trip,
   todayDate,
   tripGradient,
+  refreshKey = 0,
   onToggle,
   onSave,
   onDelete,
@@ -265,7 +267,7 @@ export default function ItineraryPage({
   onUpdateTitle,
 }: Props) {
   const [addingDay, setAddingDay] = useState(false)
-  const { dayMap, cityMap } = useTripWeather(trip.days)
+  const { dayMap, cityMap } = useTripWeather(trip.days, refreshKey)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(trip.title)
 

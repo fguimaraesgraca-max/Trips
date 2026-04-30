@@ -3,6 +3,7 @@ import { X, Plus, Check, Pencil, Trash2, Share2, Upload, GripVertical } from 'lu
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
+import { clearWeatherCache } from './hooks/useWeather'
 import BottomNav, { Tab } from './components/BottomNav'
 import TodayPage from './pages/TodayPage'
 import ItineraryPage from './pages/ItineraryPage'
@@ -868,6 +869,50 @@ export default function App() {
   const today = todayISO()
   const pendingCount = trip.pendingItems.filter(p => p.status === 'pendente').length
 
+  // Pull-to-refresh
+  const [weatherKey, setWeatherKey] = useState(0)
+  const [pullState, setPullState] = useState<'idle' | 'pulling' | 'refreshing'>('idle')
+  const [pullProgress, setPullProgress] = useState(0)
+  const pullRef = useRef<{ startY: number; dy: number } | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const PULL_THRESHOLD = 70
+
+  function handlePullStart(e: React.TouchEvent) {
+    if (pullState === 'refreshing') return
+    const el = scrollRef.current
+    if (!el || el.scrollTop > 0) return
+    pullRef.current = { startY: e.touches[0].clientY, dy: 0 }
+  }
+
+  function handlePullMove(e: React.TouchEvent) {
+    if (!pullRef.current || pullState === 'refreshing') return
+    const dy = e.touches[0].clientY - pullRef.current.startY
+    if (dy <= 0) { pullRef.current = null; setPullState('idle'); setPullProgress(0); return }
+    pullRef.current.dy = dy
+    setPullState('pulling')
+    setPullProgress(Math.min(dy / PULL_THRESHOLD, 1.3))
+  }
+
+  function handlePullEnd() {
+    if (!pullRef.current) return
+    const dy = pullRef.current.dy
+    pullRef.current = null
+    if (pullState === 'refreshing') return
+    if (dy >= PULL_THRESHOLD) {
+      setPullState('refreshing')
+      setPullProgress(0)
+      clearWeatherCache()
+      setWeatherKey(k => k + 1)
+      navigator.serviceWorker?.getRegistrations()
+        .then(regs => regs.forEach(r => r.update()))
+        .catch(() => {})
+      setTimeout(() => setPullState('idle'), 1500)
+    } else {
+      setPullState('idle')
+      setPullProgress(0)
+    }
+  }
+
   if (showWelcome) {
     return (
       <ErrorBoundary>
@@ -901,12 +946,32 @@ export default function App() {
           {/* Decorative stamp banner */}
           <TripBanner />
 
-          <div className="overflow-y-auto">
+          <div
+            ref={scrollRef}
+            className="overflow-y-auto"
+            onTouchStart={handlePullStart}
+            onTouchMove={handlePullMove}
+            onTouchEnd={handlePullEnd}
+          >
+            {/* Pull-to-refresh indicator */}
+            {pullState !== 'idle' && (
+              <div
+                className="flex items-center justify-center overflow-hidden transition-all duration-150"
+                style={{ height: pullState === 'refreshing' ? 44 : Math.min(pullProgress * 44, 44) }}
+              >
+                <div
+                  className={`w-7 h-7 rounded-full border-2 border-white/40 border-t-white ${pullState === 'refreshing' ? 'animate-spin' : ''}`}
+                  style={{ opacity: Math.min(pullProgress, 1) }}
+                />
+              </div>
+            )}
+
             {tab === 'hoje' && (
               <TodayPage
                 trip={trip}
                 todayDate={today}
                 tripGradient={tripGradient(trip)}
+                refreshKey={weatherKey}
                 onToggle={toggleActivity}
                 onSave={saveActivity}
                 onDelete={deleteActivity}
@@ -918,6 +983,7 @@ export default function App() {
                 trip={trip}
                 todayDate={today}
                 tripGradient={tripGradient(trip)}
+                refreshKey={weatherKey}
                 onToggle={toggleActivity}
                 onSave={saveActivity}
                 onDelete={deleteActivity}
