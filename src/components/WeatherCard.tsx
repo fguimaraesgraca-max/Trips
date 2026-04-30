@@ -14,10 +14,25 @@ interface Props {
 // ─── Rain Detail Sheet ────────────────────────────────────────────────────────
 
 function rainColor(prob: number): string {
-  if (prob >= 70) return '#3B82F6'   // blue-500
-  if (prob >= 40) return '#60A5FA'   // blue-400
-  if (prob >= 20) return '#93C5FD'   // blue-300
-  return '#BFDBFE'                   // blue-200
+  if (prob >= 70) return '#3B82F6'
+  if (prob >= 40) return '#60A5FA'
+  if (prob >= 20) return '#93C5FD'
+  return '#BFDBFE'
+}
+
+function cloudColor(cover: number): string {
+  if (cover >= 75) return '#9CA3AF'  // gray-400
+  if (cover >= 50) return '#D1D5DB'  // gray-300
+  if (cover >= 25) return '#E5E7EB'  // gray-200
+  return '#FDE68A'                   // amber-200 (clear sky)
+}
+
+function cloudLabel(cover: number): string {
+  if (cover <= 10) return '☀️'
+  if (cover <= 30) return '🌤️'
+  if (cover <= 60) return '⛅'
+  if (cover <= 85) return '🌥️'
+  return '☁️'
 }
 
 export function RainDetailSheet({
@@ -123,6 +138,32 @@ export function RainDetailSheet({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Hourly cloud cover — next 24h */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Nuvens — próximas 24h
+            </p>
+            <div className="space-y-2">
+              {slots.map(h => (
+                <div key={h.time} className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-gray-400 w-8 flex-shrink-0">
+                    {h.time.slice(11, 13)}h
+                  </span>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${h.cloudcover}%`, background: cloudColor(h.cloudcover) }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0 w-20 justify-end">
+                    <span className="text-sm leading-none">{cloudLabel(h.cloudcover)}</span>
+                    <span className="text-xs text-gray-500 font-medium">{h.cloudcover}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* 5-day daily outlook */}
