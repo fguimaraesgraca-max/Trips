@@ -12,24 +12,39 @@ const TYPES: { value: ActivityType; label: string; emoji: string }[] = [
   { value: 'other', label: 'Outro', emoji: '📌' },
 ]
 
+interface DayOption { id: string; date: string; city: string }
+
 interface Props {
   activity: Activity
   onSave: (a: Activity) => void
   onDelete: () => void
   onClose: () => void
   isNew?: boolean
+  days?: DayOption[]
+  currentDayId?: string
+  onMove?: (act: Activity, toDayId: string) => void
 }
 
-export default function EditActivityModal({ activity, onSave, onDelete, onClose, isNew }: Props) {
+function formatDayLabel(date: string, city: string): string {
+  const d = new Date(date + 'T12:00:00')
+  return d.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + city
+}
+
+export default function EditActivityModal({ activity, onSave, onDelete, onClose, isNew, days, currentDayId, onMove }: Props) {
   const [form, setForm] = useState<Activity>(activity)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [selectedDayId, setSelectedDayId] = useState(currentDayId ?? '')
 
   const set = (key: keyof Activity, val: string | boolean) =>
     setForm(p => ({ ...p, [key]: val }))
 
   const handleSave = () => {
     if (!form.title.trim()) return
-    onSave(form)
+    if (onMove && selectedDayId && selectedDayId !== currentDayId) {
+      onMove(form, selectedDayId)
+    } else {
+      onSave(form)
+    }
     onClose()
   }
 
@@ -133,6 +148,28 @@ export default function EditActivityModal({ activity, onSave, onDelete, onClose,
               className="mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] resize-none"
             />
           </div>
+
+          {/* Day picker — only shown when editing an existing activity with multiple days available */}
+          {!isNew && days && days.length > 1 && (
+            <div>
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Mover para dia</label>
+              <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto rounded-xl border border-gray-200 divide-y divide-gray-100">
+                {days.map(day => (
+                  <button
+                    key={day.id}
+                    onClick={() => setSelectedDayId(day.id)}
+                    className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                      selectedDayId === day.id
+                        ? 'bg-[#1B4F72] text-white font-semibold'
+                        : 'text-gray-700 active:bg-gray-50'
+                    }`}
+                  >
+                    {formatDayLabel(day.date, day.city)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

@@ -864,6 +864,7 @@ export default function App() {
     deleteTrip,
     importTrip,
     reorderTrips,
+    moveActivity,
   } = useTrip()
 
   const today = todayISO()
@@ -975,6 +976,7 @@ export default function App() {
                 onToggle={toggleActivity}
                 onSave={saveActivity}
                 onDelete={deleteActivity}
+                onMove={moveActivity}
                 newActivity={newActivity}
               />
             )}
@@ -987,6 +989,7 @@ export default function App() {
                 onToggle={toggleActivity}
                 onSave={saveActivity}
                 onDelete={deleteActivity}
+                onMove={moveActivity}
                 onDeleteDay={deleteDay}
                 onAddDay={addDay}
                 newActivity={newActivity}

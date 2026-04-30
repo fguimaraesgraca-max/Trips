@@ -201,6 +201,17 @@ export function useTrip() {
     }))
   }, [])
 
+  const moveActivity = useCallback((fromDayId: string, toDayId: string, act: Activity) => {
+    updateActive(t => ({
+      ...t,
+      days: t.days.map(d => {
+        if (d.id === fromDayId) return { ...d, activities: d.activities.filter(a => a.id !== act.id) }
+        if (d.id === toDayId) return { ...d, activities: [...d.activities, act].sort((x, y) => x.time.localeCompare(y.time)) }
+        return d
+      }),
+    }))
+  }, [updateActive])
+
   const reorderTrips = useCallback((ids: string[]) => {
     setState(s => {
       const order = new Map(ids.map((id, i) => [id, i]))
@@ -233,5 +244,6 @@ export function useTrip() {
     deleteTrip,
     importTrip,
     reorderTrips,
+    moveActivity,
   }
 }

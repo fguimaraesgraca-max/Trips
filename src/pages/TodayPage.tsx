@@ -18,10 +18,11 @@ interface Props {
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
+  onMove: (fromDayId: string, toDayId: string, act: Activity) => void
   newActivity: (dayId: string) => Activity
 }
 
-export default function TodayPage({ trip, todayDate, tripGradient, refreshKey = 0, onToggle, onSave, onDelete, newActivity }: Props) {
+export default function TodayPage({ trip, todayDate, tripGradient, refreshKey = 0, onToggle, onSave, onDelete, onMove, newActivity }: Props) {
   const [editing, setEditing] = useState<{ dayId: string; act: Activity; isNew: boolean } | null>(null)
 
   const todayDay = trip.days.find(d => d.date === todayDate)
@@ -149,6 +150,9 @@ export default function TodayPage({ trip, todayDate, tripGradient, refreshKey = 
           onSave={act => onSave(editing.dayId, act)}
           onDelete={() => onDelete(editing.dayId, editing.act.id)}
           onClose={() => setEditing(null)}
+          days={trip.days}
+          currentDayId={editing.dayId}
+          onMove={(act, toDayId) => onMove(editing.dayId, toDayId, act)}
         />
       )}
     </div>

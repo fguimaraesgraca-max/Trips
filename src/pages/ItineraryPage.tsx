@@ -35,6 +35,7 @@ interface Props {
   onToggle: (dayId: string, actId: string) => void
   onSave: (dayId: string, act: Activity) => void
   onDelete: (dayId: string, actId: string) => void
+  onMove: (fromDayId: string, toDayId: string, act: Activity) => void
   onDeleteDay: (dayId: string) => void
   onAddDay: (date: string, city: string, country: string) => void
   newActivity: (dayId: string) => Activity
@@ -103,22 +104,26 @@ function AddDayModal({ onAdd, onClose }: { onAdd: (d: string, c: string, co: str
 
 function DayCard({
   day,
+  allDays,
   todayDate,
   onToggle,
   onSave,
   onDelete,
   onDeleteDay,
+  onMove,
   newActivity,
   weather,
   cityWeather,
   tripGradient,
 }: {
   day: Day
+  allDays: Day[]
   todayDate: string
   onToggle: (actId: string) => void
   onSave: (act: Activity) => void
   onDelete: (actId: string) => void
   onDeleteDay: () => void
+  onMove: (toDayId: string, act: Activity) => void
   newActivity: () => Activity
   weather?: { min: number; max: number; code: number }
   cityWeather?: WeatherData
@@ -238,6 +243,9 @@ function DayCard({
             onSave={onSave}
             onDelete={() => onDelete(editing.act.id)}
             onClose={() => setEditing(null)}
+            days={allDays}
+            currentDayId={day.id}
+            onMove={(act, toDayId) => onMove(toDayId, act)}
           />
         )}
       </div>
@@ -261,6 +269,7 @@ export default function ItineraryPage({
   onToggle,
   onSave,
   onDelete,
+  onMove,
   onDeleteDay,
   onAddDay,
   newActivity,
@@ -301,11 +310,13 @@ export default function ItineraryPage({
         <DayCard
           key={day.id}
           day={day}
+          allDays={trip.days}
           todayDate={todayDate}
           onToggle={actId => onToggle(day.id, actId)}
           onSave={act => onSave(day.id, act)}
           onDelete={actId => onDelete(day.id, actId)}
           onDeleteDay={() => onDeleteDay(day.id)}
+          onMove={(toDayId, act) => onMove(day.id, toDayId, act)}
           newActivity={() => newActivity(day.id)}
           weather={dayMap[`${day.city}:${day.date}`]}
           cityWeather={cityMap[day.city]}
