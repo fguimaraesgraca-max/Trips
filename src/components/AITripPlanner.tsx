@@ -179,7 +179,15 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AITripPlanner({ onImport }: Props) {
-  const [apiKey] = useState(() => BUILT_IN_KEY || localStorage.getItem(AI_KEY_STORAGE) || '')
+  const [apiKey, setApiKey] = useState(() => {
+    if (BUILT_IN_KEY) {
+      localStorage.removeItem(AI_KEY_STORAGE) // clear any stale key
+      return BUILT_IN_KEY
+    }
+    return localStorage.getItem(AI_KEY_STORAGE) || ''
+  })
+  const [showKeyOverride, setShowKeyOverride] = useState(false)
+  const [keyDraft, setKeyDraft] = useState('')
 
   const [tripName, setTripName] = useState('')
   const [destination, setDestination] = useState('')
@@ -608,8 +616,52 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
         className="w-full bg-[#1B4F72] text-white py-4 rounded-2xl text-base font-bold disabled:opacity-40 flex items-center justify-center gap-2 active:bg-[#0E3252]"
       >
         <Sparkles size={20} />
-        {!apiKey ? 'Configure a chave da IA acima' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
+        {!apiKey ? 'Configure a chave da API abaixo' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
       </button>
+
+      {/* Key override — collapsed link at the bottom */}
+      <div className="text-center pb-1">
+        <button
+          onClick={() => setShowKeyOverride(v => !v)}
+          className="text-xs text-gray-300 active:text-gray-500"
+        >
+          🔑 {apiKey ? 'Trocar chave da API' : 'Configurar chave da API'}
+        </button>
+        {showKeyOverride && (
+          <div className="mt-2 flex gap-2">
+            <input
+              type="password"
+              value={keyDraft}
+              onChange={e => setKeyDraft(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && keyDraft.trim()) {
+                  const k = keyDraft.trim()
+                  localStorage.setItem(AI_KEY_STORAGE, k)
+                  setApiKey(k)
+                  setKeyDraft('')
+                  setShowKeyOverride(false)
+                }
+              }}
+              placeholder="sk-ant-..."
+              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#1B4F72]"
+            />
+            <button
+              onClick={() => {
+                const k = keyDraft.trim()
+                if (!k) return
+                localStorage.setItem(AI_KEY_STORAGE, k)
+                setApiKey(k)
+                setKeyDraft('')
+                setShowKeyOverride(false)
+              }}
+              disabled={!keyDraft.trim()}
+              className="px-3 py-2 bg-[#1B4F72] text-white rounded-xl text-xs font-bold disabled:opacity-40"
+            >
+              Salvar
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
