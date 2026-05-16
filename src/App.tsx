@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
 import { clearWeatherCache } from './hooks/useWeather'
+import AITripPlanner from './components/AITripPlanner'
 import BottomNav, { Tab } from './components/BottomNav'
 import TodayPage from './pages/TodayPage'
 import ItineraryPage from './pages/ItineraryPage'
@@ -186,7 +187,7 @@ function CreateTripModal({
   onCreate: (title: string, city: string, country: string, date: string) => void
   onCreateWithDays: (title: string, days: Day[], pendingItems: PendingItem[]) => void
 }) {
-  const [mode, setMode] = useState<'manual' | 'text'>('manual')
+  const [mode, setMode] = useState<'manual' | 'text' | 'ai'>('manual')
   const [title, setTitle] = useState('')
   const [city, setCity] = useState('')
   const [country, setCountry] = useState('Brasil')
@@ -242,24 +243,41 @@ function CreateTripModal({
               onClick={() => setMode('manual')}
               className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'manual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
-              ✏️ Campos manuais
+              ✏️ Manual
             </button>
             <button
               onClick={() => setMode('text')}
               className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'text' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
-              📋 Colar roteiro
+              📋 Colar texto
+            </button>
+            <button
+              onClick={() => setMode('ai')}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'ai' ? 'bg-[#1B4F72] text-white shadow-sm' : 'text-gray-500'}`}
+            >
+              🤖 Gerar com IA
             </button>
           </div>
         </div>
 
         <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
-          {/* Trip name always visible */}
-          <div>
-            <label className={labelCls}>Nome da viagem *</label>
-            <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="ex: Europa Inverno 2027" className={inputCls} />
-          </div>
+          {mode === 'ai' ? (
+            <AITripPlanner
+              onImport={(aiTitle, aiDays, aiPending) => {
+                onCreateWithDays(aiTitle, aiDays, aiPending)
+                onClose()
+              }}
+            />
+          ) : null}
+
+          {/* Trip name — only for manual / text modes */}
+          {mode !== 'ai' && (
+            <div>
+              <label className={labelCls}>Nome da viagem *</label>
+              <input value={title} onChange={e => setTitle(e.target.value)}
+                placeholder="ex: Europa Inverno 2027" className={inputCls} />
+            </div>
+          )}
 
           {mode === 'manual' ? (
             <>
@@ -339,15 +357,17 @@ function CreateTripModal({
           )}
         </div>
 
-        <div className="px-5 pb-6 pt-3 flex-shrink-0 border-t border-gray-100">
-          <button
-            onClick={handle}
-            disabled={mode === 'manual' ? (!title.trim() || !city.trim() || !date) : (!title.trim() || !parsed)}
-            className="w-full bg-[#1B4F72] text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
-          >
-            {mode === 'text' ? '🗺️ Criar viagem com roteiro' : 'Criar viagem'}
-          </button>
-        </div>
+        {mode !== 'ai' && (
+          <div className="px-5 pb-6 pt-3 flex-shrink-0 border-t border-gray-100">
+            <button
+              onClick={handle}
+              disabled={mode === 'manual' ? (!title.trim() || !city.trim() || !date) : (!title.trim() || !parsed)}
+              className="w-full bg-[#1B4F72] text-white py-3.5 rounded-2xl text-base font-bold disabled:opacity-40"
+            >
+              {mode === 'text' ? '🗺️ Criar viagem com roteiro' : 'Criar viagem'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
