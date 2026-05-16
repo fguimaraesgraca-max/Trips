@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Sparkles, RefreshCw, Key, Check, ArrowLeft } from 'lucide-react'
+import { Sparkles, RefreshCw, Check, ArrowLeft } from 'lucide-react'
 import { Activity, ActivityType, Day, PendingItem } from '../types'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ function buildPrompt(p: {
   return `Você é um planejador de viagens especialista. Crie um roteiro de viagem completo e detalhado.
 
 INFORMAÇÕES DA VIAGEM:
-- Destino: ${p.destination}${p.departureCity ? `\n- Cidade de partida: ${p.departureCity}` : ''}
+- Destino: ${p.destination || 'A ESCOLHER — sugira o destino ideal com base no perfil e preferências abaixo'}${p.departureCity ? `\n- Cidade de partida: ${p.departureCity}` : ''}
 - Duração: ${p.numDays} dias (início: ${p.startDate})
 - Período: ${PT_MONTHS[p.month]}
 - Estilo: ${styleLabels}
@@ -154,7 +154,7 @@ REGRAS OBRIGATÓRIAS:
 - Pelo menos 1 atividade tipo "food" por dia com nome real do restaurante
 - Use locais REAIS e conhecidos — museus, restaurantes, pontos turísticos com nomes verdadeiros
 - Horários devem ser sequenciais e realistas (sem sobreposição)
-- Notas: preços aproximados, se precisa reservar, horário de funcionamento${p.departureCity ? `\n- Inclua voo de ${p.departureCity} como primeira atividade do dia 1 (tipo "flight")` : ''}${hasKids ? '\n- Priorize atividades adequadas para crianças, indicando faixa etária quando relevante' : ''}${hasPet ? '\n- Indique locais pet-friendly e parques que aceitam animais' : ''}${isBudget ? '\n- Priorize opções gratuitas ou de baixo custo, hostels, restaurantes populares' : ''}${isLuxury ? '\n- Inclua hotéis 5 estrelas, restaurantes premiados e experiências exclusivas' : ''}
+- Notas: preços aproximados, se precisa reservar, horário de funcionamento${!p.destination ? '\n- SUGIRA o melhor destino para o perfil informado e justifique brevemente na descrição do primeiro dia' : ''}${p.departureCity ? `\n- Inclua voo de ${p.departureCity} como primeira atividade do dia 1 (tipo "flight")` : ''}${hasKids ? '\n- Priorize atividades adequadas para crianças, indicando faixa etária quando relevante' : ''}${hasPet ? '\n- Indique locais pet-friendly e parques que aceitam animais' : ''}${isBudget ? '\n- Priorize opções gratuitas ou de baixo custo, hostels, restaurantes populares' : ''}${isLuxury ? '\n- Inclua hotéis 5 estrelas, restaurantes premiados e experiências exclusivas' : ''}
 - Considere clima e eventos típicos de ${PT_MONTHS[p.month]}`
 }
 
@@ -174,9 +174,7 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AITripPlanner({ onImport }: Props) {
-  const [apiKey, setApiKey] = useState(() => BUILT_IN_KEY || localStorage.getItem(AI_KEY_STORAGE) || '')
-  const [showKeyInput, setShowKeyInput] = useState(() => !BUILT_IN_KEY && !localStorage.getItem(AI_KEY_STORAGE))
-  const [keyDraft, setKeyDraft] = useState('')
+  const [apiKey] = useState(() => BUILT_IN_KEY || localStorage.getItem(AI_KEY_STORAGE) || '')
 
   const [tripName, setTripName] = useState('')
   const [destination, setDestination] = useState('')
@@ -202,21 +200,12 @@ export default function AITripPlanner({ onImport }: Props) {
     return () => clearInterval(iv)
   }, [stage])
 
-  function saveKey() {
-    const k = keyDraft.trim()
-    if (!k) return
-    localStorage.setItem(AI_KEY_STORAGE, k)
-    setApiKey(k)
-    setShowKeyInput(false)
-    setKeyDraft('')
-  }
-
   function toggle<T>(arr: T[], item: T): T[] {
     return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item]
   }
 
   async function generate(refineText?: string) {
-    if (!apiKey || !destination.trim() || !tripName.trim()) return
+    if (!apiKey || !tripName.trim()) return
     setStage('loading')
     setError('')
 
@@ -275,59 +264,12 @@ export default function AITripPlanner({ onImport }: Props) {
   }
 
   const totalActs = generatedDays.reduce((s, d) => s + d.activities.length, 0)
-  const canGenerate = !!apiKey && !!destination.trim() && !!tripName.trim()
+  const canGenerate = !!apiKey && !!tripName.trim()
 
   const cls = {
     label: 'text-xs font-semibold text-gray-500 uppercase tracking-wide',
     input: 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white',
   }
-
-  // ── API key banner — hidden when key is baked into the build ───────────────
-  const keyBanner = BUILT_IN_KEY ? null : (
-    <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3.5">
-      {showKeyInput ? (
-        <>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Key size={13} className="text-amber-600 flex-shrink-0" />
-            <p className="text-xs font-bold text-amber-800">Chave Claude API (Anthropic)</p>
-          </div>
-          <p className="text-[11px] text-amber-600 mb-3 leading-relaxed">
-            Obtenha em <span className="font-mono font-semibold">console.anthropic.com</span> → API Keys.
-            Armazenada só neste dispositivo.
-          </p>
-          <div className="flex gap-2">
-            <input
-              type="password"
-              value={keyDraft}
-              onChange={e => setKeyDraft(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') saveKey() }}
-              placeholder="sk-ant-api03-..."
-              className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-            <button
-              onClick={saveKey}
-              disabled={!keyDraft.trim()}
-              className="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-bold disabled:opacity-40"
-            >
-              Salvar
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-              <Check size={11} className="text-white" strokeWidth={3} />
-            </div>
-            <p className="text-sm text-gray-700 font-medium">IA configurada</p>
-          </div>
-          <button onClick={() => { setShowKeyInput(true); setKeyDraft('') }} className="text-xs text-gray-400 underline">
-            Alterar chave
-          </button>
-        </div>
-      )}
-    </div>
-  )
 
   // ── Loading ─────────────────────────────────────────────────────────────────
   if (stage === 'loading') {
@@ -434,8 +376,6 @@ export default function AITripPlanner({ onImport }: Props) {
   // ── Form ────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
-      {keyBanner}
-
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           <p className="text-sm font-bold text-red-700">Erro ao gerar roteiro</p>
@@ -450,7 +390,7 @@ export default function AITripPlanner({ onImport }: Props) {
       </div>
 
       <div>
-        <label className={cls.label}>Destino *</label>
+        <label className={cls.label}>Destino <span className="normal-case font-normal text-gray-400">(deixe vazio para a IA sugerir)</span></label>
         <input value={destination} onChange={e => setDestination(e.target.value)}
           placeholder="ex: Salvador · Japão · Patagônia · Lisboa" className={cls.input} />
       </div>
@@ -544,7 +484,7 @@ export default function AITripPlanner({ onImport }: Props) {
         className="w-full bg-[#1B4F72] text-white py-4 rounded-2xl text-base font-bold disabled:opacity-40 flex items-center justify-center gap-2 active:bg-[#0E3252]"
       >
         <Sparkles size={20} />
-        {!apiKey ? 'Configure a chave da IA acima' : !tripName.trim() || !destination.trim() ? 'Preencha nome e destino' : 'Gerar roteiro com IA'}
+        {!apiKey ? 'Configure a chave da IA acima' : !tripName.trim() ? 'Preencha o nome da viagem' : 'Gerar roteiro com IA'}
       </button>
     </div>
   )
