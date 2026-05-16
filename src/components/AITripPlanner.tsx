@@ -5,6 +5,7 @@ import { Activity, ActivityType, Day, PendingItem } from '../types'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const AI_KEY_STORAGE = 'viaticum-ai-key'
+const BUILT_IN_KEY: string = import.meta.env.VITE_ANTHROPIC_KEY ?? ''
 
 const PT_MONTHS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -173,8 +174,8 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AITripPlanner({ onImport }: Props) {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem(AI_KEY_STORAGE) ?? '')
-  const [showKeyInput, setShowKeyInput] = useState(() => !localStorage.getItem(AI_KEY_STORAGE))
+  const [apiKey, setApiKey] = useState(() => BUILT_IN_KEY || localStorage.getItem(AI_KEY_STORAGE) || '')
+  const [showKeyInput, setShowKeyInput] = useState(() => !BUILT_IN_KEY && !localStorage.getItem(AI_KEY_STORAGE))
   const [keyDraft, setKeyDraft] = useState('')
 
   const [tripName, setTripName] = useState('')
@@ -281,8 +282,8 @@ export default function AITripPlanner({ onImport }: Props) {
     input: 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white',
   }
 
-  // ── API key banner ──────────────────────────────────────────────────────────
-  const keyBanner = (
+  // ── API key banner — hidden when key is baked into the build ───────────────
+  const keyBanner = BUILT_IN_KEY ? null : (
     <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3.5">
       {showKeyInput ? (
         <>
