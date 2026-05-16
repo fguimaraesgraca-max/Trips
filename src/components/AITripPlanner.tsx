@@ -157,7 +157,15 @@ REGRAS OBRIGATÓRIAS:
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Stage = 'form' | 'loading' | 'preview'
+type Stage = 'form' | 'suggesting' | 'suggestions' | 'loading' | 'preview'
+
+interface Suggestion {
+  name: string
+  country: string
+  emoji: string
+  tagline: string
+  highlight: string
+}
 
 interface RawDay {
   date: string; city: string; country: string
@@ -190,6 +198,7 @@ export default function AITripPlanner({ onImport }: Props) {
   const [lastPrompt, setLastPrompt] = useState('')
   const [lastJSON, setLastJSON] = useState('')
   const [refinement, setRefinement] = useState('')
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
 
   useEffect(() => {
     if (stage !== 'loading') return
@@ -201,14 +210,61 @@ export default function AITripPlanner({ onImport }: Props) {
     return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item]
   }
 
-  async function generate(refineText?: string) {
+  async function fetchSuggestions() {
     if (!apiKey || !tripName.trim()) return
+    setStage('suggesting')
+    setError('')
+
+    try {
+      const budgetLabel = BUDGETS.find(b => b.id === budget)?.label ?? budget
+      const styleLabels = styles.map(s => TRAVEL_STYLES.find(x => x.id === s)?.label ?? s).join(', ') || 'geral'
+      const companionLabels = companions.map(c => COMPANIONS.find(x => x.id === c)?.label ?? c).join(', ') || 'adultos'
+
+      const prompt = `Você é um especialista em viagens. Sugira 4 destinos ideais para esta viagem.
+
+PERFIL:
+- Duração: ${numDays} dias em ${PT_MONTHS[month]}
+- Estilo: ${styleLabels}
+- Perfil: ${companionLabels}
+- Orçamento: ${budgetLabel}${departureCity ? `\n- Partindo de: ${departureCity}` : ''}${notes ? `\n- Observações: ${notes}` : ''}
+
+Retorne APENAS este JSON, sem texto adicional:
+{
+  "suggestions": [
+    {
+      "name": "Nome da cidade ou região",
+      "country": "País",
+      "emoji": "🏖️",
+      "tagline": "Frase curta e atraente (máx 8 palavras)",
+      "highlight": "Por que é ideal para este perfil em ${PT_MONTHS[month]} (1 frase)"
+    }
+  ]
+}
+
+REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representativos do lugar.`
+
+      const text = await callClaude(apiKey, [{ role: 'user', content: prompt }])
+      const json = extractJSON(text)
+      const data = JSON.parse(json)
+      if (!Array.isArray(data.suggestions) || data.suggestions.length === 0) throw new Error('Nenhuma sugestão retornada')
+
+      setSuggestions(data.suggestions.slice(0, 4))
+      setStage('suggestions')
+    } catch (e: any) {
+      setError(e.message ?? 'Erro desconhecido')
+      setStage('form')
+    }
+  }
+
+  async function generate(chosenDestination?: string, refineText?: string) {
+    if (!apiKey || !tripName.trim()) return
+    const dest = chosenDestination ?? destination
     setStage('loading')
     setError('')
 
     try {
       const startDate = getStartDate(month)
-      const prompt = buildPrompt({ destination, departureCity, numDays, month, styles, companions, budget, startDate, notes })
+      const prompt = buildPrompt({ destination: dest, departureCity, numDays, month, styles, companions, budget, startDate, notes })
       setLastPrompt(prompt)
 
       let messages: Array<{ role: 'user' | 'assistant'; content: string }>
@@ -240,6 +296,14 @@ export default function AITripPlanner({ onImport }: Props) {
     }
   }
 
+  function handleGenerate() {
+    if (!destination.trim()) {
+      fetchSuggestions()
+    } else {
+      generate()
+    }
+  }
+
   function handleImport() {
     const days: Day[] = generatedDays.map(gd => ({
       id: nanoid(),
@@ -266,6 +330,69 @@ export default function AITripPlanner({ onImport }: Props) {
   const cls = {
     label: 'text-xs font-semibold text-gray-500 uppercase tracking-wide',
     input: 'mt-1.5 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4F72] bg-white',
+  }
+
+  // ── Suggesting (spinner while fetching suggestions) ─────────────────────────
+  if (stage === 'suggesting') {
+    return (
+      <div className="flex flex-col items-center justify-center py-14 gap-5">
+        <div className="w-16 h-16 rounded-2xl bg-[#EAF2F8] flex items-center justify-center">
+          <Sparkles size={30} className="text-[#1B4F72] animate-pulse" />
+        </div>
+        <div className="text-center">
+          <p className="text-base font-bold text-gray-800 mb-1">Buscando destinos para você...</p>
+          <p className="text-sm text-gray-400">Analisando seu perfil e preferências</p>
+        </div>
+        <div className="flex gap-1">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="w-2 h-2 rounded-full bg-[#1B4F72] animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ── Suggestions ──────────────────────────────────────────────────────────────
+  if (stage === 'suggestions') {
+    return (
+      <div className="space-y-4">
+        <div>
+          <p className="text-base font-bold text-gray-900">Escolha um destino</p>
+          <p className="text-xs text-gray-400 mt-0.5">A IA vai criar o roteiro completo após sua escolha</p>
+        </div>
+
+        <div className="space-y-3">
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => generate(`${s.name}, ${s.country}`)}
+              className="w-full text-left bg-white border border-gray-200 rounded-2xl p-4 active:bg-[#EAF2F8] active:border-[#A8C4D8] transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-3xl flex-shrink-0 leading-none mt-0.5">{s.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <p className="text-sm font-bold text-gray-900">{s.name}</p>
+                    <p className="text-xs text-gray-400">{s.country}</p>
+                  </div>
+                  <p className="text-sm text-[#1B4F72] font-medium mt-0.5">{s.tagline}</p>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{s.highlight}</p>
+                </div>
+                <span className="text-gray-300 flex-shrink-0 mt-1">›</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setStage('form')}
+          className="w-full text-center text-sm text-gray-400 py-2 active:text-gray-600"
+        >
+          ← Voltar e digitar destino manualmente
+        </button>
+      </div>
+    )
   }
 
   // ── Loading ─────────────────────────────────────────────────────────────────
@@ -476,12 +603,12 @@ export default function AITripPlanner({ onImport }: Props) {
       </div>
 
       <button
-        onClick={() => generate()}
+        onClick={handleGenerate}
         disabled={!canGenerate}
         className="w-full bg-[#1B4F72] text-white py-4 rounded-2xl text-base font-bold disabled:opacity-40 flex items-center justify-center gap-2 active:bg-[#0E3252]"
       >
         <Sparkles size={20} />
-        {!apiKey ? 'Configure a chave da IA acima' : !tripName.trim() ? 'Preencha o nome da viagem' : 'Gerar roteiro com IA'}
+        {!apiKey ? 'Configure a chave da IA acima' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
       </button>
     </div>
   )
