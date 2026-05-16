@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Anthropic from '@anthropic-ai/sdk'
 import { Sparkles, RefreshCw, Check, ArrowLeft } from 'lucide-react'
 import { Activity, ActivityType, Day, PendingItem } from '../types'
 
@@ -80,24 +81,20 @@ async function callClaude(
   apiKey: string,
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
 ): Promise<string> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-ipc': 'true',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 6000, messages }),
-  })
-  if (res.status === 401) throw new Error('Chave de API inválida. Verifique em console.anthropic.com')
-  if (res.status === 429) throw new Error('Muitas requisições. Aguarde um momento e tente novamente.')
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro na API (${res.status})`)
+  const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true })
+  try {
+    const msg = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 6000,
+      messages,
+    })
+    return msg.content[0].type === 'text' ? msg.content[0].text : ''
+  } catch (e: any) {
+    const status = e.status ?? 0
+    if (status === 401) throw new Error('Chave de API inválida')
+    if (status === 429) throw new Error('Muitas requisições — aguarde e tente novamente')
+    throw new Error(e.message ?? `Erro na API (${status})`)
   }
-  const data = await res.json()
-  return data.content?.[0]?.text ?? ''
 }
 
 function buildPrompt(p: {
