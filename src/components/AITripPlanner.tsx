@@ -422,6 +422,13 @@ REGRAS:
         </div>
 
         <button
+          onClick={fetchSuggestions}
+          className="w-full flex items-center justify-center gap-2 border border-[#1B4F72] text-[#1B4F72] py-3 rounded-2xl text-sm font-bold active:bg-[#EAF2F8]"
+        >
+          <RefreshCw size={15} /> Gerar outras sugestões
+        </button>
+
+        <button
           onClick={() => setStage('form')}
           className="w-full text-center text-sm text-gray-400 py-2 active:text-gray-600"
         >
