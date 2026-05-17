@@ -180,13 +180,11 @@ interface Props {
 
 export default function AITripPlanner({ onImport }: Props) {
   const [apiKey, setApiKey] = useState(() => {
-    if (BUILT_IN_KEY) {
-      localStorage.removeItem(AI_KEY_STORAGE) // clear any stale key
-      return BUILT_IN_KEY
-    }
-    return localStorage.getItem(AI_KEY_STORAGE) || ''
+    // Built-in key always wins; wipe any stale localStorage key
+    localStorage.removeItem(AI_KEY_STORAGE)
+    return BUILT_IN_KEY || ''
   })
-  const [showKeyOverride, setShowKeyOverride] = useState(false)
+  const [showKeyOverride, setShowKeyOverride] = useState(!BUILT_IN_KEY)
   const [keyDraft, setKeyDraft] = useState('')
 
   const [tripName, setTripName] = useState('')
@@ -259,8 +257,18 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
       setSuggestions(data.suggestions.slice(0, 4))
       setStage('suggestions')
     } catch (e: any) {
-      setError(e.message ?? 'Erro desconhecido')
-      setStage('form')
+      handleError(e)
+    }
+  }
+
+  function handleError(e: any) {
+    const msg: string = e.message ?? 'Erro desconhecido'
+    const isAuth = msg.toLowerCase().includes('inválida') || msg.toLowerCase().includes('invalid') || e.status === 401
+    setError(msg)
+    setStage('form')
+    if (isAuth) {
+      setApiKey('')
+      setShowKeyOverride(true)
     }
   }
 
@@ -299,8 +307,7 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
       setRefinement('')
       setStage('preview')
     } catch (e: any) {
-      setError(e.message ?? 'Erro desconhecido')
-      setStage('form')
+      handleError(e)
     }
   }
 
@@ -512,6 +519,9 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
         <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           <p className="text-sm font-bold text-red-700">Erro ao gerar roteiro</p>
           <p className="text-xs text-red-500 mt-0.5">{error}</p>
+          {!apiKey && (
+            <p className="text-xs text-red-600 font-semibold mt-1.5">👇 Insira sua chave da API abaixo para continuar</p>
+          )}
         </div>
       )}
 
@@ -619,49 +629,78 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
         {!apiKey ? 'Configure a chave da API abaixo' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
       </button>
 
-      {/* Key override — collapsed link at the bottom */}
-      <div className="text-center pb-1">
-        <button
-          onClick={() => setShowKeyOverride(v => !v)}
-          className="text-xs text-gray-300 active:text-gray-500"
-        >
-          🔑 {apiKey ? 'Trocar chave da API' : 'Configurar chave da API'}
-        </button>
-        {showKeyOverride && (
-          <div className="mt-2 flex gap-2">
+      {/* Key override */}
+      {!apiKey ? (
+        <div className="border border-amber-200 bg-amber-50 rounded-2xl px-4 py-3.5">
+          <p className="text-xs font-bold text-amber-800 mb-0.5">🔑 Chave da API necessária</p>
+          <p className="text-[11px] text-amber-600 mb-3">
+            Cole sua chave do Anthropic (console.anthropic.com → API Keys)
+          </p>
+          <div className="flex gap-2">
             <input
               type="password"
               value={keyDraft}
               onChange={e => setKeyDraft(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter' && keyDraft.trim()) {
-                  const k = keyDraft.trim()
-                  localStorage.setItem(AI_KEY_STORAGE, k)
-                  setApiKey(k)
+                  setApiKey(keyDraft.trim())
                   setKeyDraft('')
-                  setShowKeyOverride(false)
                 }
               }}
               placeholder="sk-ant-..."
-              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#1B4F72]"
+              className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+              autoFocus
             />
             <button
-              onClick={() => {
-                const k = keyDraft.trim()
-                if (!k) return
-                localStorage.setItem(AI_KEY_STORAGE, k)
-                setApiKey(k)
-                setKeyDraft('')
-                setShowKeyOverride(false)
-              }}
+              onClick={() => { if (keyDraft.trim()) { setApiKey(keyDraft.trim()); setKeyDraft('') } }}
               disabled={!keyDraft.trim()}
-              className="px-3 py-2 bg-[#1B4F72] text-white rounded-xl text-xs font-bold disabled:opacity-40"
+              className="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-bold disabled:opacity-40"
             >
-              Salvar
+              Usar
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="text-center pb-1">
+          <button
+            onClick={() => setShowKeyOverride(v => !v)}
+            className="text-xs text-gray-300 active:text-gray-500"
+          >
+            🔑 Trocar chave da API
+          </button>
+          {showKeyOverride && (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="password"
+                value={keyDraft}
+                onChange={e => setKeyDraft(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && keyDraft.trim()) {
+                    setApiKey(keyDraft.trim())
+                    setKeyDraft('')
+                    setShowKeyOverride(false)
+                  }
+                }}
+                placeholder="sk-ant-..."
+                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#1B4F72]"
+              />
+              <button
+                onClick={() => {
+                  if (keyDraft.trim()) {
+                    setApiKey(keyDraft.trim())
+                    setKeyDraft('')
+                    setShowKeyOverride(false)
+                  }
+                }}
+                disabled={!keyDraft.trim()}
+                className="px-3 py-2 bg-[#1B4F72] text-white rounded-xl text-xs font-bold disabled:opacity-40"
+              >
+                Salvar
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
