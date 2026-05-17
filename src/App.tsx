@@ -168,7 +168,7 @@ function TripBanner() {
       {/* Left: app identity */}
       <div className="flex-shrink-0">
         <p className="text-white font-bold text-xl tracking-tight leading-none">Viaticum</p>
-        <p className="text-white/55 text-[11px] mt-0.5 font-light tracking-widest uppercase">por GLab</p>
+        <p className="text-white/55 text-[11px] mt-0.5 font-light tracking-widest uppercase">by Nlab</p>
       </div>
 
       {/* Right: stamps row */}
