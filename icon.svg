@@ -24,10 +24,7 @@
     </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
-  <!-- Subtle glow -->
-  <ellipse cx="256" cy="200" rx="220" ry="180" fill="white" fill-opacity="0.04"/>
+  <!-- Background transparent (no fill) -->
 
   <!-- Handle (rounded arch) -->
   <path d="M 196 172 C 196 110 316 110 316 172"
