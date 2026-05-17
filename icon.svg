@@ -1,42 +1,120 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4338CA"/>
-      <stop offset="100%" stop-color="#7C3AED"/>
+      <stop offset="0%" stop-color="#152338"/>
+      <stop offset="100%" stop-color="#0A1420"/>
     </linearGradient>
-    <linearGradient id="shine" x1="256" y1="0" x2="256" y2="340" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    <linearGradient id="case-g" x1="0" y1="168" x2="0" y2="392" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2A4060"/>
+      <stop offset="100%" stop-color="#1A2C40"/>
     </linearGradient>
-    <clipPath id="round">
-      <rect width="512" height="512" rx="115"/>
-    </clipPath>
+    <linearGradient id="front-g" x1="0" y1="182" x2="0" y2="378" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#375577"/>
+      <stop offset="100%" stop-color="#263D58"/>
+    </linearGradient>
+    <linearGradient id="band-g" x1="0" y1="0" x2="0" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E09030"/>
+      <stop offset="100%" stop-color="#C07018"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="stamp-sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
   </defs>
 
   <!-- Background -->
   <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+  <!-- Subtle glow -->
+  <ellipse cx="256" cy="200" rx="220" ry="180" fill="white" fill-opacity="0.04"/>
 
-  <!-- Glassy shine overlay -->
-  <rect width="512" height="512" rx="115" fill="url(#shine)"/>
+  <!-- Handle (rounded arch) -->
+  <path d="M 196 172 C 196 110 316 110 316 172"
+        fill="none" stroke="#7A9EC0" stroke-width="18" stroke-linecap="round"/>
+  <!-- Handle anchor plates -->
+  <rect x="186" y="162" width="22" height="18" rx="5" fill="#7A9EC0"/>
+  <rect x="304" y="162" width="22" height="18" rx="5" fill="#7A9EC0"/>
 
-  <!-- Depth circles for subtle texture -->
-  <circle cx="400" cy="118" r="190" fill="white" fill-opacity="0.05"/>
-  <circle cx="100" cy="420" r="140" fill="white" fill-opacity="0.04"/>
+  <!-- Suitcase shadow -->
+  <rect x="122" y="178" width="268" height="218" rx="28" fill="#000" fill-opacity="0.35"/>
 
-  <!--
-    Location pin: circle center (256,205) radius 120, tip at (256,415)
-    Upper semicircle via two 90° clockwise arcs; tapering sides via cubic beziers
-  -->
-  <path d="M 256 85
-           A 120 120 0 0 1 376 205
-           C 376 272 314 342 256 415
-           C 198 342 136 272 136 205
-           A 120 120 0 0 1 256 85 Z"
-        fill="white"/>
+  <!-- Suitcase body -->
+  <rect x="118" y="170" width="276" height="218" rx="28" fill="url(#case-g)" filter="url(#sh)"/>
 
-  <!-- Inner ring: same gradient punches a hole -->
-  <circle cx="256" cy="205" r="52" fill="url(#bg)"/>
+  <!-- Front panel -->
+  <rect x="132" y="184" width="248" height="190" rx="20" fill="url(#front-g)"/>
 
-  <!-- Center dot -->
-  <circle cx="256" cy="205" r="20" fill="white" fill-opacity="0.88"/>
+  <!-- Zipper seam line -->
+  <line x1="132" y1="268" x2="380" y2="268" stroke="#1A2C40" stroke-width="3"/>
+
+  <!-- Center band -->
+  <rect x="118" y="258" width="276" height="24" fill="url(#band-g)"/>
+  <rect x="132" y="258" width="248" height="24" fill="url(#band-g)"/>
+  <!-- Band highlight -->
+  <rect x="132" y="258" width="248" height="8" fill="rgba(255,255,255,0.18)" rx="1"/>
+
+  <!-- Lock -->
+  <rect x="241" y="250" width="30" height="38" rx="8" fill="#6A8EAA"/>
+  <rect x="246" y="255" width="20" height="16" rx="4" fill="#8AAEC8"/>
+  <circle cx="256" cy="263" r="5" fill="#527A90"/>
+  <circle cx="256" cy="263" r="2.5" fill="#3A5C70"/>
+
+  <!-- Corner rivets -->
+  <circle cx="148" cy="198" r="5.5" fill="#3A5878"/>
+  <circle cx="364" cy="198" r="5.5" fill="#3A5878"/>
+  <circle cx="148" cy="360" r="5.5" fill="#3A5878"/>
+  <circle cx="364" cy="360" r="5.5" fill="#3A5878"/>
+
+  <!-- Wheels -->
+  <ellipse cx="166" cy="384" rx="24" ry="14" fill="#0E1E2E"/>
+  <ellipse cx="166" cy="384" rx="16" ry="9" fill="#1C2E40"/>
+  <circle  cx="166" cy="384" r="5"  fill="#0A1828"/>
+  <ellipse cx="346" cy="384" rx="24" ry="14" fill="#0E1E2E"/>
+  <ellipse cx="346" cy="384" rx="16" ry="9" fill="#1C2E40"/>
+  <circle  cx="346" cy="384" r="5"  fill="#0A1828"/>
+
+  <!-- ═══════════════════════════════ -->
+  <!--   STICKER STAMPS               -->
+  <!-- ═══════════════════════════════ -->
+
+  <!-- Helper: stamp is centered at (0,0): white 50×62, colored inner 34×46 -->
+
+  <!-- Stamp 1 · top-left · OCEAN (teal) · -13° -->
+  <g transform="translate(143, 212) rotate(-13)" filter="url(#stamp-sh)">
+    <rect x="-25" y="-31" width="50" height="62" rx="4" fill="white"/>
+    <rect x="-17" y="-23" width="34" height="46" rx="3" fill="#1A9FC8"/>
+    <!-- Two wave lines -->
+    <path d="M-11 -3 Q-5.5 -9 0 -3 Q5.5 3 11 -3" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M-11  5 Q-5.5 -1 0  5 Q5.5 11 11  5" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.2" stroke-linecap="round"/>
+    <text x="0" y="20" text-anchor="middle" font-size="7.5" fill="white" font-weight="bold" font-family="system-ui,sans-serif" letter-spacing="1">MAR</text>
+  </g>
+
+  <!-- Stamp 2 · top-right · FLIGHT (amber) · +11° -->
+  <g transform="translate(369, 208) rotate(11)" filter="url(#stamp-sh)">
+    <rect x="-25" y="-31" width="50" height="62" rx="4" fill="white"/>
+    <rect x="-17" y="-23" width="34" height="46" rx="3" fill="#D97C18"/>
+    <!-- Paper-plane shape -->
+    <polygon points="-12,6 12,-4 -12,-12" fill="white"/>
+    <polygon points="-12,6 2,1 12,-4"    fill="rgba(255,255,255,0.5)"/>
+    <text x="0" y="20" text-anchor="middle" font-size="7.5" fill="white" font-weight="bold" font-family="system-ui,sans-serif" letter-spacing="1">VÔO</text>
+  </g>
+
+  <!-- Stamp 3 · bottom-left · LOVE (red) · -9° -->
+  <g transform="translate(149, 358) rotate(-9)" filter="url(#stamp-sh)">
+    <rect x="-25" y="-31" width="50" height="62" rx="4" fill="white"/>
+    <rect x="-17" y="-23" width="34" height="46" rx="3" fill="#CC2B22"/>
+    <!-- Heart via bezier -->
+    <path d="M0,9 C-14,-2 -12,-14 0,-7 C12,-14 14,-2 0,9 Z" fill="white"/>
+    <text x="0" y="20" text-anchor="middle" font-size="7.5" fill="white" font-weight="bold" font-family="system-ui,sans-serif" letter-spacing="1">AMOR</text>
+  </g>
+
+  <!-- Stamp 4 · bottom-right · STAR (violet) · +10° -->
+  <g transform="translate(363, 356) rotate(10)" filter="url(#stamp-sh)">
+    <rect x="-25" y="-31" width="50" height="62" rx="4" fill="white"/>
+    <rect x="-17" y="-23" width="34" height="46" rx="3" fill="#7B3FA0"/>
+    <!-- 5-point star: outer r=9.5, inner r=4 -->
+    <polygon points="0,-9.5 2.4,-3.2 9.5,-2.9 3.9,1.3 5.9,8.1 0,4 -5.9,8.1 -3.9,1.3 -9.5,-2.9 -2.4,-3.2" fill="white"/>
+    <text x="0" y="20" text-anchor="middle" font-size="7.5" fill="white" font-weight="bold" font-family="system-ui,sans-serif" letter-spacing="1">TOP</text>
+  </g>
 </svg>
