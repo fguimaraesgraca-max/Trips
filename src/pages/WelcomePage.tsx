@@ -45,8 +45,8 @@ export default function WelcomePage({ onContinue }: Props) {
 
         {/* App name */}
         <div style={fade(150)}>
-          <h1 className="text-5xl font-bold text-white tracking-tight">Viaticum</h1>
-          <p className="text-white/60 text-sm mt-1 font-light">por Filipe &amp; Patrícia</p>
+          <h1 className="text-5xl text-white" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, letterSpacing: '-0.5px' }}>Viaticum</h1>
+          <p className="text-white/60 text-sm mt-1 font-light tracking-widest uppercase" style={{ letterSpacing: '0.18em' }}>por GLab</p>
         </div>
 
         {/* Welcome message */}
