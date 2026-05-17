@@ -27,7 +27,7 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE_PATH: /Trips/
-          VITE_ANTHROPIC_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VITE_ANTHROPIC_KEY: ${{ secrets.TRIPS_VIATICUM || secrets.ANTHROPIC_API_KEY }}
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
