@@ -916,7 +916,7 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(
     () => !sessionStorage.getItem('viaticum-welcomed')
   )
-  const [showTripMenu, setShowTripMenu] = useState(false)
+  const [showTripMenu, setShowTripMenu] = useState(true)
 
   const {
     trips,
