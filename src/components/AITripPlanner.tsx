@@ -165,6 +165,8 @@ interface Suggestion {
   emoji: string
   tagline: string
   highlight: string
+  transport: string[]   // e.g. ["✈️ Voo direto", "🚗 Carro"]
+  travelTime: string    // e.g. "1h45 de SP" or "6h de carro de SP"
 }
 
 interface RawDay {
@@ -242,12 +244,17 @@ Retorne APENAS este JSON, sem texto adicional:
       "country": "País",
       "emoji": "🏖️",
       "tagline": "Frase curta e atraente (máx 8 palavras)",
-      "highlight": "Por que é ideal para este perfil em ${PT_MONTHS[month]} (1 frase)"
+      "highlight": "Por que é ideal para este perfil em ${PT_MONTHS[month]} (1 frase)",
+      "transport": ["✈️ Voo direto", "🚗 Carro"],
+      "travelTime": "2h de voo de SP"
     }
   ]
 }
 
-REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representativos do lugar.`
+REGRAS:
+- 4 sugestões variadas, destinos reais e específicos, emojis representativos do lugar
+- "transport": lista dos modais mais práticos para chegar (✈️ Voo, 🚗 Carro, 🚌 Ônibus, 🚢 Barco, 🚆 Trem)${departureCity ? `\n- "travelTime": tempo estimado partindo de ${departureCity} pelo modal mais rápido/comum` : '\n- "travelTime": tempo estimado de viagem pelo modal principal indicado'}
+- Se houver voo, indicar se é direto ou com conexão`
 
       const text = await callClaude(apiKey, [{ role: 'user', content: prompt }])
       const json = extractJSON(text)
@@ -393,6 +400,20 @@ REGRAS: 4 sugestões variadas, destinos reais e específicos, emojis representat
                   </div>
                   <p className="text-sm text-[#1B4F72] font-medium mt-0.5">{s.tagline}</p>
                   <p className="text-xs text-gray-500 mt-1 leading-relaxed">{s.highlight}</p>
+
+                  {/* Transport + travel time */}
+                  <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                    {s.transport?.map((t, j) => (
+                      <span key={j} className="text-[11px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                        {t}
+                      </span>
+                    ))}
+                    {s.travelTime && (
+                      <span className="text-[11px] text-gray-400 font-medium">
+                        · {s.travelTime}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className="text-gray-300 flex-shrink-0 mt-1">›</span>
               </div>
