@@ -24,6 +24,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Check secret
+        run: |
+          if [ -n "$KEY" ]; then echo "✅ Chave presente (${#KEY} caracteres)"; else echo "❌ Chave vazia"; fi
+        env:
+          KEY: ${{ secrets.TRIPS_VIATICUM }}
+
       - run: npm run build
         env:
           VITE_BASE_PATH: /Trips/
