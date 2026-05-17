@@ -9,18 +9,22 @@ interface AppState {
   activeTripId: string
 }
 
+const RETIRED_TRIP_IDS = new Set(['minas-2026-elvis'])
+
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const state = JSON.parse(raw) as AppState
+      // Remove retired trips
+      const trips = state.trips.filter(t => !RETIRED_TRIP_IDS.has(t.id))
+      const activeTripId = trips.some(t => t.id === state.activeTripId)
+        ? state.activeTripId
+        : trips[0]?.id ?? state.activeTripId
       // Inject any new default trips not yet in this device's storage
-      const existingIds = new Set(state.trips.map(t => t.id))
+      const existingIds = new Set(trips.map(t => t.id))
       const newTrips = defaultTrips.filter(t => !existingIds.has(t.id))
-      if (newTrips.length > 0) {
-        return { ...state, trips: [...state.trips, ...newTrips] }
-      }
-      return state
+      return { trips: newTrips.length ? [...trips, ...newTrips] : trips, activeTripId }
     }
   } catch {}
   return { trips: defaultTrips, activeTripId: defaultTrips[0].id }

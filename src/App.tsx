@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Component, ReactNode } from 'react'
-import { X, Plus, Check, Pencil, Trash2, Share2, Upload, GripVertical } from 'lucide-react'
+import { X, Plus, Check, Pencil, Trash2, Share2, Upload, GripVertical, ChevronDown, ChevronUp } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useTrip } from './hooks/useTrip'
@@ -73,6 +73,11 @@ const COLOR_PRESETS = [
   '#8B7355', '#6B4226', '#2D6A4F', '#6B4C8A',
   '#9B2335', '#C0392B', '#4A5568', '#1A252F',
 ]
+
+function isTripPast(trip: Trip): boolean {
+  if (!trip.days.length) return false
+  return trip.days[trip.days.length - 1].date < todayISO()
+}
 
 function tripDateRange(trip: Trip): string {
   if (!trip.days.length) return 'Sem datas'
@@ -656,6 +661,7 @@ function TripMenu({
   const [creating, setCreating] = useState(false)
   const [importing, setImporting] = useState(false)
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null)
+  const [showPast, setShowPast] = useState(false)
 
   // Drag-to-reorder state
   const [orderedTrips, setOrderedTrips] = useState(trips)
@@ -733,7 +739,8 @@ function TripMenu({
           onTouchMove={handleListTouchMove}
           onTouchEnd={handleListTouchEnd}
         >
-          {displayTrips.map((t, idx) => {
+          {/* Active / upcoming trips */}
+          {displayTrips.filter(t => !isTripPast(t)).map((t, idx) => {
             const isActive = t.id === activeId
             const isDragging = t.id === draggingId
             const pending = t.pendingItems.filter(p => p.status === 'pendente').length
@@ -746,7 +753,6 @@ function TripMenu({
                   transform: isDragging ? 'scale(0.97)' : 'scale(1)',
                 }}
               >
-                {/* Gradient top — tap to activate */}
                 <button
                   onClick={() => { if (!dragRef.current) { onChange(t.id); onClose() } }}
                   className="w-full text-left px-5 pt-5 pb-4 flex items-start justify-between active:opacity-80 transition-opacity"
@@ -767,14 +773,11 @@ function TripMenu({
                     </div>
                   )}
                 </button>
-
-                {/* White footer — status + drag handle + edit button */}
                 <div className="bg-white px-4 py-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${isActive ? 'text-[#1B4F72]' : 'text-gray-400'}`}>
                     {isActive ? '✓ Viagem ativa' : 'Toque para ativar'}
                   </span>
                   <div className="flex items-center gap-1">
-                    {/* Drag handle */}
                     <div
                       style={{ touchAction: 'none' }}
                       onTouchStart={e => handleGripTouchStart(e, t.id, idx)}
@@ -790,6 +793,59 @@ function TripMenu({
                       <span className="text-xs font-semibold">Editar</span>
                     </button>
                   </div>
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Past trips toggle */}
+          {displayTrips.some(isTripPast) && (
+            <button
+              onClick={() => setShowPast(s => !s)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/10 active:bg-white/20 transition-colors"
+            >
+              <span className="text-white/65 text-sm font-semibold">
+                Viagens encerradas ({displayTrips.filter(isTripPast).length})
+              </span>
+              {showPast
+                ? <ChevronUp size={16} className="text-white/50" />
+                : <ChevronDown size={16} className="text-white/50" />}
+            </button>
+          )}
+
+          {/* Past trip cards */}
+          {showPast && displayTrips.filter(isTripPast).map(t => {
+            const isActive = t.id === activeId
+            return (
+              <div key={t.id} className="w-full rounded-3xl overflow-hidden shadow-sm opacity-80">
+                <button
+                  onClick={() => { onChange(t.id); onClose() }}
+                  className="w-full text-left px-5 pt-5 pb-4 flex items-start justify-between active:opacity-70 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #9CA3AF, #6B7280)' }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/60 text-xs font-medium mb-1">{tripDateRange(t)}</p>
+                    <h3 className="text-white font-bold text-lg leading-tight">{t.title}</h3>
+                    <p className="text-white/60 text-sm mt-1">
+                      {t.days.length} dia{t.days.length !== 1 ? 's' : ''}
+                      {t.days[0] ? ` · ${t.days[0].city}` : ''}
+                    </p>
+                  </div>
+                  {isActive && (
+                    <div className="ml-3 mt-1 w-8 h-8 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">
+                      <Check size={16} className="text-white" strokeWidth={3} />
+                    </div>
+                  )}
+                </button>
+                <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-400">Viagem encerrada</span>
+                  <button
+                    onClick={e => { e.stopPropagation(); setEditingTrip(t) }}
+                    className="flex items-center gap-1.5 text-gray-400 active:scale-90 transition-transform px-2 py-1"
+                  >
+                    <Pencil size={14} />
+                    <span className="text-xs font-semibold">Editar</span>
+                  </button>
                 </div>
               </div>
             )
