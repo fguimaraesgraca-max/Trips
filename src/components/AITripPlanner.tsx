@@ -182,11 +182,15 @@ interface Props {
 
 export default function AITripPlanner({ onImport }: Props) {
   const [apiKey, setApiKey] = useState(() => {
-    // Built-in key always wins; wipe any stale localStorage key
-    localStorage.removeItem(AI_KEY_STORAGE)
-    return BUILT_IN_KEY || ''
+    if (BUILT_IN_KEY) {
+      localStorage.removeItem(AI_KEY_STORAGE)
+      return BUILT_IN_KEY
+    }
+    return localStorage.getItem(AI_KEY_STORAGE) || ''
   })
-  const [showKeyOverride, setShowKeyOverride] = useState(!BUILT_IN_KEY)
+  const [showKeyOverride, setShowKeyOverride] = useState(
+    () => !BUILT_IN_KEY && !localStorage.getItem(AI_KEY_STORAGE)
+  )
   const [keyDraft, setKeyDraft] = useState('')
 
   const [tripName, setTripName] = useState('')
@@ -268,6 +272,15 @@ REGRAS:
     }
   }
 
+  function applyKey(key: string) {
+    const k = key.trim()
+    setApiKey(k)
+    if (k) localStorage.setItem(AI_KEY_STORAGE, k)
+    else localStorage.removeItem(AI_KEY_STORAGE)
+    setKeyDraft('')
+    setShowKeyOverride(false)
+  }
+
   function handleError(e: any) {
     const msg: string = e.message ?? 'Erro desconhecido'
     const isAuth = msg.toLowerCase().includes('inválida') || msg.toLowerCase().includes('invalid') || e.status === 401
@@ -275,6 +288,7 @@ REGRAS:
     setStage('form')
     if (isAuth) {
       setApiKey('')
+      localStorage.removeItem(AI_KEY_STORAGE)
       setShowKeyOverride(true)
     }
   }
@@ -669,18 +683,13 @@ REGRAS:
               type="password"
               value={keyDraft}
               onChange={e => setKeyDraft(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && keyDraft.trim()) {
-                  setApiKey(keyDraft.trim())
-                  setKeyDraft('')
-                }
-              }}
+              onKeyDown={e => { if (e.key === 'Enter' && keyDraft.trim()) applyKey(keyDraft) }}
               placeholder="sk-ant-..."
               className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
               autoFocus
             />
             <button
-              onClick={() => { if (keyDraft.trim()) { setApiKey(keyDraft.trim()); setKeyDraft('') } }}
+              onClick={() => { if (keyDraft.trim()) applyKey(keyDraft) }}
               disabled={!keyDraft.trim()}
               className="px-4 py-2 bg-amber-600 text-white rounded-xl text-sm font-bold disabled:opacity-40"
             >
@@ -702,24 +711,12 @@ REGRAS:
                 type="password"
                 value={keyDraft}
                 onChange={e => setKeyDraft(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && keyDraft.trim()) {
-                    setApiKey(keyDraft.trim())
-                    setKeyDraft('')
-                    setShowKeyOverride(false)
-                  }
-                }}
+                onKeyDown={e => { if (e.key === 'Enter' && keyDraft.trim()) applyKey(keyDraft) }}
                 placeholder="sk-ant-..."
                 className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#1B4F72]"
               />
               <button
-                onClick={() => {
-                  if (keyDraft.trim()) {
-                    setApiKey(keyDraft.trim())
-                    setKeyDraft('')
-                    setShowKeyOverride(false)
-                  }
-                }}
+                onClick={() => { if (keyDraft.trim()) applyKey(keyDraft) }}
                 disabled={!keyDraft.trim()}
                 className="px-3 py-2 bg-[#1B4F72] text-white rounded-xl text-xs font-bold disabled:opacity-40"
               >
