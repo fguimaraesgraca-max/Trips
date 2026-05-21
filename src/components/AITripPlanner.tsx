@@ -5,8 +5,10 @@ import { Activity, ActivityType, Day, PendingItem } from '../types'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+declare const __VIATICUM_KEY__: string
+
 const AI_KEY_STORAGE = 'viaticum-ai-key'
-const BUILT_IN_KEY: string = import.meta.env.VITE_ANTHROPIC_KEY ?? ''
+const BUILT_IN_KEY: string = __VIATICUM_KEY__ || ''
 
 const PT_MONTHS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',

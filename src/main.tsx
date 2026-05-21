@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import './index.css'
@@ -6,6 +6,13 @@ import App from './App'
 
 function Root() {
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()
+
+  // Auto-reload when a new service worker takes control
+  useEffect(() => {
+    const handler = () => window.location.reload()
+    navigator.serviceWorker?.addEventListener('controllerchange', handler)
+    return () => navigator.serviceWorker?.removeEventListener('controllerchange', handler)
+  }, [])
 
   return (
     <>
