@@ -297,9 +297,12 @@ REGRAS:
     setError(msg)
     setStage('form')
     if (isAuth) {
-      setApiKey('')
-      localStorage.removeItem(AI_KEY_STORAGE)
-      setShowKeyOverride(true)
+      if (!BUILT_IN_KEY) {
+        // Only clear manually-entered key; if key is built-in, nothing the user can do in UI
+        setApiKey('')
+        localStorage.removeItem(AI_KEY_STORAGE)
+        setShowKeyOverride(true)
+      }
     }
   }
 
