@@ -302,7 +302,7 @@ function CreateTripModal({
                   className={inputCls} />
               </div>
             </>
-          ) : (
+          ) : mode === 'text' ? (
             <div className="space-y-3">
               <div>
                 <label className={labelCls}>Cole seu roteiro aqui</label>
@@ -359,7 +359,7 @@ function CreateTripModal({
                 </div>
               )}
             </div>
-          )}
+          ) : null}
         </div>
 
         {mode !== 'ai' && (

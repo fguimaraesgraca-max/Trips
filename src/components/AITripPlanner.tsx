@@ -233,7 +233,7 @@ export default function AITripPlanner({ onImport }: Props) {
   }
 
   async function fetchSuggestions() {
-    if (!apiKey || !tripName.trim()) return
+    if (!effectiveKey || !tripName.trim()) return
     setStage('suggesting')
     setError('')
 
@@ -270,7 +270,7 @@ REGRAS:
 - "transport": lista dos modais mais práticos para chegar (✈️ Voo, 🚗 Carro, 🚌 Ônibus, 🚢 Barco, 🚆 Trem)${departureCity ? `\n- "travelTime": tempo estimado partindo de ${departureCity} pelo modal mais rápido/comum` : '\n- "travelTime": tempo estimado de viagem pelo modal principal indicado'}
 - Se houver voo, indicar se é direto ou com conexão`
 
-      const text = await callClaude(apiKey, [{ role: 'user', content: prompt }])
+      const text = await callClaude(effectiveKey, [{ role: 'user', content: prompt }])
       const json = extractJSON(text)
       const data = JSON.parse(json)
       if (!Array.isArray(data.suggestions) || data.suggestions.length === 0) throw new Error('Nenhuma sugestão retornada')
@@ -304,7 +304,7 @@ REGRAS:
   }
 
   async function generate(chosenDestination?: string, refineText?: string) {
-    if (!apiKey || !tripName.trim()) return
+    if (!effectiveKey || !tripName.trim()) return
     const dest = chosenDestination ?? destination
     setStage('loading')
     setError('')
@@ -328,7 +328,7 @@ REGRAS:
         messages = [{ role: 'user', content: prompt }]
       }
 
-      const text = await callClaude(apiKey, messages)
+      const text = await callClaude(effectiveKey, messages)
       const json = extractJSON(text)
       const data = JSON.parse(json)
       if (!Array.isArray(data.days) || data.days.length === 0) throw new Error('Roteiro vazio. Tente novamente.')
@@ -371,7 +371,9 @@ REGRAS:
   }
 
   const totalActs = generatedDays.reduce((s, d) => s + d.activities.length, 0)
-  const canGenerate = !!apiKey && !!tripName.trim()
+  // Always prefer the built-in key; fall back to manually entered key
+  const effectiveKey = BUILT_IN_KEY || apiKey
+  const canGenerate = !!effectiveKey && !!tripName.trim()
 
   const cls = {
     label: 'text-xs font-semibold text-gray-500 uppercase tracking-wide',
@@ -678,11 +680,11 @@ REGRAS:
         className="w-full bg-[#1B4F72] text-white py-4 rounded-2xl text-base font-bold disabled:opacity-40 flex items-center justify-center gap-2 active:bg-[#0E3252]"
       >
         <Sparkles size={20} />
-        {!apiKey ? 'Configure a chave da API abaixo' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
+        {!effectiveKey ? 'Configure a chave da API abaixo' : !tripName.trim() ? 'Preencha o nome da viagem' : destination.trim() ? 'Gerar roteiro com IA' : 'Sugerir destinos com IA'}
       </button>
 
       {/* Key override */}
-      {!apiKey ? (
+      {!effectiveKey ? (
         <div className="border border-amber-200 bg-amber-50 rounded-2xl px-4 py-3.5">
           <p className="text-xs font-bold text-amber-800 mb-0.5">🔑 Chave da API necessária</p>
           <p className="text-[11px] text-amber-600 mb-3">
@@ -707,7 +709,7 @@ REGRAS:
             </button>
           </div>
         </div>
-      ) : (
+      ) : !BUILT_IN_KEY ? (
         <div className="text-center pb-1">
           <button
             onClick={() => setShowKeyOverride(v => !v)}
@@ -735,7 +737,7 @@ REGRAS:
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }
