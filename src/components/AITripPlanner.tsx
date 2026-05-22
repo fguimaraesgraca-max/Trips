@@ -183,17 +183,25 @@ interface Props {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AITripPlanner({ onImport }: Props) {
-  const [apiKey, setApiKey] = useState(() => {
-    if (BUILT_IN_KEY) {
-      localStorage.removeItem(AI_KEY_STORAGE)
-      return BUILT_IN_KEY
-    }
-    return localStorage.getItem(AI_KEY_STORAGE) || ''
-  })
-  const [showKeyOverride, setShowKeyOverride] = useState(
-    () => !BUILT_IN_KEY && !localStorage.getItem(AI_KEY_STORAGE)
-  )
+  // Avoid localStorage calls during render — they can fail silently in private mode
+  const [apiKey, setApiKey] = useState(BUILT_IN_KEY || '')
+  const [showKeyOverride, setShowKeyOverride] = useState(!BUILT_IN_KEY)
   const [keyDraft, setKeyDraft] = useState('')
+
+  // Sync with localStorage after mount (non-blocking)
+  useEffect(() => {
+    if (BUILT_IN_KEY) {
+      try { localStorage.removeItem(AI_KEY_STORAGE) } catch {}
+      return
+    }
+    try {
+      const stored = localStorage.getItem(AI_KEY_STORAGE)
+      if (stored) {
+        setApiKey(stored)
+        setShowKeyOverride(false)
+      }
+    } catch {}
+  }, [])
 
   const [tripName, setTripName] = useState('')
   const [destination, setDestination] = useState('')
