@@ -21,8 +21,18 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Only precache static assets; JS is handled via NetworkFirst below
+        globPatterns: ['**/*.{html,css,ico,png,svg,webmanifest}'],
         runtimeCaching: [
+          {
+            // App JS bundles: always try network first so updates are instant
+            urlPattern: /\/assets\/.*\.js$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'js-bundle',
+              networkTimeoutSeconds: 5,
+            },
+          },
           {
             urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/i,
             handler: 'NetworkFirst',
