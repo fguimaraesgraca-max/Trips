@@ -4,10 +4,27 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 import './index.css'
 import App from './App'
 
+declare const __BUILD_ID__: string
+
+// On every new deploy, wipe all old service workers and caches, then reload
+// so the user always gets a fresh bundle with the embedded API key.
+const STORED_BUILD = localStorage.getItem('viaticum-build-id')
+if (STORED_BUILD !== __BUILD_ID__) {
+  localStorage.setItem('viaticum-build-id', __BUILD_ID__)
+  Promise.all([
+    navigator.serviceWorker?.getRegistrations().then(regs =>
+      Promise.all(regs.map(r => r.unregister()))
+    ),
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => caches.delete(k)))
+    ),
+  ]).then(() => window.location.reload())
+}
+
 function Root() {
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()
 
-  // Auto-reload when a new service worker takes control
+  // Also auto-reload when a new service worker takes control
   useEffect(() => {
     const handler = () => window.location.reload()
     navigator.serviceWorker?.addEventListener('controllerchange', handler)

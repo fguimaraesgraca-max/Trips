@@ -9,8 +9,8 @@ const anthropicKey = process.env.VITE_ANTHROPIC_KEY ?? ''
 export default defineConfig({
   base,
   define: {
-    // Custom global constant — avoids conflict with Vite's own import.meta.env processing
     __VIATICUM_KEY__: JSON.stringify(anthropicKey),
+    __BUILD_ID__: JSON.stringify(Date.now().toString()),
   },
   plugins: [
     react(),
